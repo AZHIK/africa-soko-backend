@@ -1,0 +1,6 @@
+pytest                  # test framework
+pytest-asyncio          # async test support
+httpx                   # async HTTP client for testing endpoints
+ruff                    # linter and formatter
+mypy                    # static type checking
+pre-commit              # enforce code quality before commits
