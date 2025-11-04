@@ -33,7 +33,7 @@ This repository contains the backend service for the Africa Soko e-commerce plat
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/AZHIK/africa-soko-backend.git
 cd africa_soko_backend
 ```
 
