@@ -5,7 +5,7 @@ from .product import Product
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class Vendor(SQLModel):
+class Vendor(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id", unique=True)
     business_name: str = Field(nullable=False)
@@ -20,7 +20,7 @@ class Vendor(SQLModel):
     stores: List["Store"] = Relationship(back_populates="vendor")
 
 
-class Store(SQLModel):
+class Store(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     vendor_id: Optional[int] = Field(default=None, foreign_key="vendor.id")
     store_name: str = Field(nullable=False)

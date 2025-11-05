@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = Field(..., env="POSTGRES_HOST")
     POSTGRES_PORT: int = Field(..., env="POSTGRES_PORT")
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
+    GOOGLE_USER_DEFAULT_PASSWORD: str = Field(..., env="GOOGLE_USER_DEFAULT_PASSWORD")
 
     @property
     def SQLALCHEMY_DATABASE_URL(self) -> str:

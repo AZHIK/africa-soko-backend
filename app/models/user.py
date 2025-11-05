@@ -4,21 +4,21 @@ from datetime import datetime
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class RolePermissionLink(SQLModel):
+class RolePermissionLink(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     role_id: Optional[int] = Field(default=None, foreign_key="role.id")
     permission_id: Optional[int] = Field(default=None, foreign_key="permission.id")
     created_at: datetime = Field(default_factory=datetime.now)
 
 
-class UserRoleLink(SQLModel):
+class UserRoleLink(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     role_id: Optional[int] = Field(default=None, foreign_key="role.id")
     assigned_at: datetime = Field(default_factory=datetime.now)
 
 
-class Role(SQLModel):
+class Role(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True, nullable=False, unique=True)
     description: Optional[str] = None
@@ -31,7 +31,7 @@ class Role(SQLModel):
     )
 
 
-class Permission(SQLModel):
+class Permission(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(nullable=False, unique=True)  # human readable name
     code: str = Field(nullable=False, unique=True)  # machine code e.g. "product:create"
@@ -44,7 +44,7 @@ class Permission(SQLModel):
     )
 
 
-class UserPermissionOverride(SQLModel):
+class UserPermissionOverride(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     permission_id: Optional[int] = Field(default=None, foreign_key="permission.id")
@@ -55,7 +55,7 @@ class UserPermissionOverride(SQLModel):
     permission: Optional[Permission] = Relationship()
 
 
-class User(SQLModel):
+class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(nullable=False, unique=True, index=True)
     username: Optional[str] = Field(default=None, index=True)
@@ -71,7 +71,7 @@ class User(SQLModel):
     permission_overrides: List[UserPermissionOverride] = Relationship()
 
 
-class Address(SQLModel):
+class Address(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     full_name: str = Field(nullable=False)

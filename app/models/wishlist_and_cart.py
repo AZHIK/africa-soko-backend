@@ -5,7 +5,7 @@ from .user import User
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class WishlistItem(SQLModel):
+class WishlistItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")
@@ -15,7 +15,7 @@ class WishlistItem(SQLModel):
     user: Optional["User"] = Relationship()
 
 
-class CartItem(SQLModel):
+class CartItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")

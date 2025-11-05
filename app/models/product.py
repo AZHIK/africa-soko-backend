@@ -1,11 +1,10 @@
 from typing import List, Optional
 from datetime import datetime
-from .vendor import Store
 from sqlmodel import SQLModel, Field, Relationship
 from .user import User
 
 
-class Product(SQLModel):
+class Product(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     store_id: Optional[int] = Field(default=None, foreign_key="store.id")
     category_id: Optional[int] = Field(default=None, foreign_key="category.id")
@@ -19,13 +18,13 @@ class Product(SQLModel):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    store: Optional["Store"] = Relationship(back_populates="products")
+    store: Optional["Store"] = Relationship(back_populates="products")  # type: ignore # noqa: F821
     category: Optional["Category"] = Relationship(back_populates="products")
     images: List["ProductImage"] = Relationship(back_populates="product")
     reviews: List["Review"] = Relationship(back_populates="product")
 
 
-class Category(SQLModel):
+class Category(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(nullable=False, unique=True, index=True)
     slug: str = Field(nullable=False, unique=True, index=True)
@@ -39,7 +38,7 @@ class Category(SQLModel):
     products: List["Product"] = Relationship(back_populates="category")
 
 
-class ProductImage(SQLModel):
+class ProductImage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")
     image_url: str = Field(nullable=False)
@@ -49,7 +48,7 @@ class ProductImage(SQLModel):
     product: Optional["Product"] = Relationship(back_populates="images")
 
 
-class Review(SQLModel):
+class Review(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     product_id: Optional[int] = Field(default=None, foreign_key="product.id")
