@@ -6,15 +6,15 @@ from sqlmodel import SQLModel, Field, Relationship
 
 class RolePermissionLink(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    role_id: Optional[int] = Field(default=None, foreign_key="role.id")
-    permission_id: Optional[int] = Field(default=None, foreign_key="permission.id")
+    role_id: int = Field(foreign_key="role.id")
+    permission_id: int = Field(foreign_key="permission.id")
     created_at: datetime = Field(default_factory=datetime.now)
 
 
 class UserRoleLink(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    role_id: Optional[int] = Field(default=None, foreign_key="role.id")
+    user_id: int = Field(foreign_key="user.id")
+    role_id: int = Field(foreign_key="role.id")
     assigned_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -46,8 +46,8 @@ class Permission(SQLModel, table=True):
 
 class UserPermissionOverride(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    permission_id: Optional[int] = Field(default=None, foreign_key="permission.id")
+    user_id: int = Field(foreign_key="user.id")
+    permission_id: int = Field(foreign_key="permission.id")
     is_granted: bool = Field(default=True)  # True = grant, False = revoke
     created_at: datetime = Field(default_factory=datetime.now)
 
@@ -73,7 +73,7 @@ class User(SQLModel, table=True):
 
 class Address(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    user_id: int = Field(foreign_key="user.id")
     full_name: str = Field(nullable=False)
     phone_number: Optional[str] = None
     street: Optional[str] = None

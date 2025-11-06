@@ -21,7 +21,7 @@ class PaymentMethod(str, Enum):
 
 class Payment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    order_id: Optional[int] = Field(default=None, foreign_key="order.id")
+    order_id: int = Field(foreign_key="order.id")
     amount: float = Field(default=0.0)
     payment_method: PaymentMethod = Field(
         default=PaymentMethod.credit_card, sa_column_kwargs={"nullable": False}

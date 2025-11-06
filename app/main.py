@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.init_db import init_db
-from app.routers import auth
+from app.routers import auth, vendor, store, product, review, product_image, category
 
 
 origins = [
@@ -37,3 +37,9 @@ app.add_middleware(
 
 # Including routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(vendor.router, prefix="/vendors", tags=["Vendors"])
+app.include_router(store.router, prefix="/stores", tags=["Stores"])
+app.include_router(product.router)
+app.include_router(review.router)
+app.include_router(product_image.router)
+app.include_router(category.router)

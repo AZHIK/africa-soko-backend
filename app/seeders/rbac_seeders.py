@@ -1,11 +1,41 @@
 import asyncio
-from datetime import datetime
 from sqlmodel import select
-import getpass
+import os
+from dotenv import load_dotenv
 
-from app.models.user import Role, Permission, RolePermissionLink, User, UserRoleLink
-from app.db.session import AsyncSessionLocal as async_session_maker, engine
-from app.core.security import get_password_hash
+from app.models.user import Role, Permission, RolePermissionLink
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+# Load environment variables from .env file.
+load_dotenv()
+
+# Manually construct the database URL from environment variables.
+PG_USER = os.getenv("POSTGRES_USER")
+PG_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+PG_HOST = os.getenv("POSTGRES_HOST")
+PG_PORT = os.getenv("POSTGRES_PORT")
+PG_DB = os.getenv("POSTGRES_DB")
+
+# Check if all required environment variables are set
+if not all([PG_USER, PG_PASSWORD, PG_HOST, PG_PORT, PG_DB]):
+    print("Error: Missing one or more required PostgreSQL environment variables.")
+    print(
+        "Please ensure POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, and POSTGRES_DB are set in your .env file."
+    )
+    exit(1)
+
+DATABASE_URL = (
+    f"postgresql+asyncpg://{PG_USER}:{PG_PASSWORD}@{PG_HOST}:{PG_PORT}/{PG_DB}"
+)
+
+# Create a new engine and session maker for this script
+script_engine = create_async_engine(DATABASE_URL, echo=False)
+ScriptSessionLocal = sessionmaker(
+    bind=script_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
+)
+
 
 # ---- DEFINE DEFAULT PERMISSIONS ----
 PERMISSIONS = [
@@ -52,7 +82,16 @@ ROLE_PERMISSIONS = {
 
 
 async def seed_rbac():
-    async with async_session_maker() as session:
+    async with ScriptSessionLocal() as session:
+        # Check if RBAC has already been seeded
+        existing_admin_role = await session.exec(
+            select(Role).where(Role.name == "admin")
+        )
+        if existing_admin_role.first():
+            print("RBAC roles and permissions already exist. Skipping seeding.")
+            await script_engine.dispose()
+            return
+
         # ---- SEED PERMISSIONS ----
         for perm in PERMISSIONS:
             existing = await session.exec(
@@ -96,43 +135,8 @@ async def seed_rbac():
         await session.commit()
         print("Role ↔ Permission links created")
 
-        # ---- CREATE SUPER ADMIN ----
-        print("\n=== Super Admin Setup ===")
-        email = input("Admin Email: ").strip()
-        username = input("Admin Username: ").strip()
-
-        while True:
-            password = getpass.getpass("Admin Password (hidden): ").strip()
-            confirm_password = getpass.getpass("Confirm Password: ").strip()
-            if password == confirm_password:
-                break
-            print(" Passwords do not match. Please try again.\n")
-
-        existing_user = await session.exec(select(User).where(User.email == email))
-        if existing_user.first():
-            print("ℹ Super admin already exists with this email.")
-        else:
-            hashed_pw = get_password_hash(password)
-            admin_user = User(
-                email=email,
-                username=username,
-                hashed_password=hashed_pw,
-                is_active=True,
-                is_admin=True,
-                created_at=datetime.utcnow(),
-            )
-            session.add(admin_user)
-            await session.commit()
-            await session.refresh(admin_user)
-
-            # Link to admin role
-            admin_role = role_dict["admin"]
-            session.add(UserRoleLink(user_id=admin_user.id, role_id=admin_role.id))
-            await session.commit()
-            print(f"Admin user created successfully: {email}")
-
-    await engine.dispose()
-    print("\nRBAC seeding completed successfully!")
+        await script_engine.dispose()
+    print("RBAC seeding completed successfully!")
 
 
 if __name__ == "__main__":

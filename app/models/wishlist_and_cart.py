@@ -7,8 +7,8 @@ from sqlmodel import SQLModel, Field, Relationship
 
 class WishlistItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    product_id: Optional[int] = Field(default=None, foreign_key="product.id")
+    user_id: int = Field(foreign_key="user.id")
+    product_id: int = Field(foreign_key="product.id")
     added_at: datetime = Field(default_factory=datetime.now)
 
     product: Optional["Product"] = Relationship()
@@ -17,8 +17,8 @@ class WishlistItem(SQLModel, table=True):
 
 class CartItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    product_id: Optional[int] = Field(default=None, foreign_key="product.id")
+    user_id: int = Field(foreign_key="user.id")
+    product_id: int = Field(foreign_key="product.id")
     quantity: int = Field(default=1)
     added_at: datetime = Field(default_factory=datetime.now)
 

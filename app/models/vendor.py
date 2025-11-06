@@ -7,7 +7,7 @@ from sqlmodel import SQLModel, Field, Relationship
 
 class Vendor(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id", unique=True)
+    user_id: int = Field(foreign_key="user.id", unique=True)
     business_name: str = Field(nullable=False)
     business_email: Optional[str] = None
     phone_number: Optional[str] = None
@@ -22,7 +22,7 @@ class Vendor(SQLModel, table=True):
 
 class Store(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    vendor_id: Optional[int] = Field(default=None, foreign_key="vendor.id")
+    vendor_id: int = Field(foreign_key="vendor.id")
     store_name: str = Field(nullable=False)
     slug: str = Field(nullable=False, index=True, unique=True)
     description: Optional[str] = None

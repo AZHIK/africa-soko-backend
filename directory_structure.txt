@@ -1,0 +1,102 @@
+.
+├── alembic
+├── alembic.ini
+├── app
+├── docker-compose.yml
+├── mypy.ini
+├── README.md
+├── requirements-dev.txt
+├── requirements.txt
+├── scripts
+└── tests
+
+./alembic
+├── env.py
+├── README
+├── script.py.mako
+└── versions
+
+./alembic/versions
+├── 66ab7ea9acae_add_business_logic_models.py
+├── 88b86fc55d81_fix_order_payment_relationship.py
+└── fe2aa5c230b3_initial_tables.py
+
+./app
+├── api
+├── core
+├── db
+├── __init__.py
+├── main.py
+├── models
+├── routers
+├── schemas
+├── seeders
+├── services
+├── tasks
+└── utils
+
+./app/api
+├── deps.py
+└── v1
+
+./app/api/v1
+├── auth.py
+├── orders.py
+├── products.py
+├── router.py
+└── users.py
+
+./app/core
+├── config.py
+├── jwt.py
+├── logging.py
+└── security.py
+
+./app/db
+├── base.py
+├── init_db.py
+├── __init__.py
+└── session.py
+
+./app/models
+├── delivery.py
+├── __init__.py
+├── order.py
+├── payment.py
+├── product.py
+├── user.py
+├── vendor.py
+└── wishlist_and_cart.py
+
+./app/routers
+├── auth.py
+└── product.py
+
+./app/schemas
+├── auth_schema.py
+├── product_shema.py
+└── user_schema.py
+
+./app/seeders
+└── rbac_seeders.py
+
+./app/services
+├── orders_service.py
+└── users_service.py
+
+./app/tasks
+└── send_mail.py
+
+./app/utils
+└── email.py
+
+./scripts
+├── create_tables.py
+├── init_db.sh
+└── test_db_connection.py
+
+./tests
+├── conftest.py
+├── test_auth.py
+├── test_orders.py
+└── test_products.py
