@@ -18,10 +18,18 @@ class Product(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    store: Optional["Store"] = Relationship(back_populates="products")  # type: ignore # noqa: F821
-    category: Optional["Category"] = Relationship(back_populates="products")
-    images: List["ProductImage"] = Relationship(back_populates="product")
-    reviews: List["Review"] = Relationship(back_populates="product")
+    store: Optional["Store"] = Relationship(  # noqa: F821 # pyright: ignore[reportUndefinedVariable]
+        back_populates="products", sa_relationship_kwargs={"lazy": "joined"}
+    )  # type: ignore # noqa: F821
+    category: Optional["Category"] = Relationship(
+        back_populates="products", sa_relationship_kwargs={"lazy": "joined"}
+    )
+    images: List["ProductImage"] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    reviews: List["Review"] = Relationship(
+        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class Category(SQLModel, table=True):
@@ -33,9 +41,11 @@ class Category(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     children: List["Category"] = Relationship(
-        sa_relationship_kwargs={"remote_side": "Category.id"}
+        sa_relationship_kwargs={"remote_side": "Category.id", "lazy": "selectin"}
     )
-    products: List["Product"] = Relationship(back_populates="category")
+    products: List["Product"] = Relationship(
+        back_populates="category", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class ProductImage(SQLModel, table=True):

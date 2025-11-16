@@ -26,6 +26,14 @@ class VendorRead(VendorBase):
     updated_at: datetime
 
 
+class VendorInfo(BaseModel):
+    id: Optional[int]
+    username: str
+    profile_pic: str
+    verification: str
+    address: str
+
+
 # Store Schemas
 class StoreBase(BaseModel):
     store_name: str

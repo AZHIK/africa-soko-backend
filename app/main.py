@@ -1,15 +1,14 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.db.init_db import init_db
 from app.routers import auth, vendor, store, product, review, product_image, category
 
 
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "https://your-frontend-domain.com",
+    "https://settlement-companies-attitudes-tablets.trycloudflare.com",
 ]
 
 
@@ -26,6 +25,8 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+
 # Adding CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -36,10 +37,33 @@ app.add_middleware(
 )
 
 # Including routers
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(auth.router, prefix="/authenticate", tags=["auth"])
 app.include_router(vendor.router, prefix="/vendors", tags=["Vendors"])
 app.include_router(store.router, prefix="/stores", tags=["Stores"])
 app.include_router(product.router)
 app.include_router(review.router)
 app.include_router(product_image.router)
 app.include_router(category.router)
+
+
+@app.websocket("/online_status")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    Handles WebSocket connections for online status.
+    Manually checks the Origin header to allow connections.
+    """
+    origin = websocket.headers.get("origin")
+
+    if origin not in origins:
+        await websocket.close(code=1008)  # Policy Violation
+        return
+
+    await websocket.accept()
+    try:
+        while True:
+            # This endpoint will keep the connection alive.
+            # You can add logic here to receive messages or broadcast status updates.
+            # For now, it waits for a message before closing.
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        print(f"Client {websocket.client.host} disconnected.")

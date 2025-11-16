@@ -63,6 +63,7 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False)
     is_vendor: bool = Field(default=False)
+    profile_pic: Optional[str] = Field(default="assets/images/faces/user.png")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 

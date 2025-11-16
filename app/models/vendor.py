@@ -16,8 +16,10 @@ class Vendor(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     # relationships
-    user: Optional["User"] = Relationship()
-    stores: List["Store"] = Relationship(back_populates="vendor")
+    user: Optional["User"] = Relationship(sa_relationship_kwargs={"lazy": "joined"})
+    stores: List["Store"] = Relationship(
+        back_populates="vendor", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 class Store(SQLModel, table=True):
@@ -32,5 +34,9 @@ class Store(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    vendor: Optional[Vendor] = Relationship(back_populates="stores")
-    products: List["Product"] = Relationship(back_populates="store")
+    vendor: Optional[Vendor] = Relationship(
+        back_populates="stores", sa_relationship_kwargs={"lazy": "joined"}
+    )
+    products: List["Product"] = Relationship(
+        back_populates="store", sa_relationship_kwargs={"lazy": "selectin"}
+    )

@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # JWT settings
     SECRET_KEY: str = Field(..., env="SECRET_KEY")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # Database settings
     POSTGRES_USER: str = Field(..., env="POSTGRES_USER")

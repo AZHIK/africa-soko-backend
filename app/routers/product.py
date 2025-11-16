@@ -1,16 +1,24 @@
-from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Depends, Query
+from typing import List
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.db.session import get_session
-from app.models.product import Product, Category
+from app.models.product import Product, Category, ProductImage
 from app.models.user import User
 from app.models.vendor import Vendor, Store
-from app.schemas.product_shema import ProductCreate, ProductRead, ProductUpdate
+from app.schemas.product_shema import (
+    ProductCreate,
+    ProductDisplay,
+    ProductFilter,
+    ProductRead,
+    ProductUpdate,
+)
 from app.routers.auth import get_current_user
 from pydantic import BaseModel
 from sqlalchemy import or_
+
+from app.schemas.vendor_schema import VendorInfo
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -34,45 +42,81 @@ async def get_vendor_stores(user_id: int, session: AsyncSession) -> List[int]:
 # ----------------------
 
 
-@router.get("/", response_model=List[ProductRead])
-async def list_products(
-    store_id: Optional[int] = Query(None),
-    category_id: Optional[int] = Query(None),
-    min_price: Optional[float] = Query(None),
-    max_price: Optional[float] = Query(None),
-    search: Optional[str] = Query(None, description="Search by name or description"),
-    skip: int = 0,
-    limit: int = 20,
+@router.post("/get_products", response_model=List[ProductDisplay])
+async def get_products(
+    filters: ProductFilter,
     session: AsyncSession = Depends(get_session),
 ):
-    """
-    Public endpoint: List active products with optional filters:
-    store_id, category_id, min_price, max_price, search.
-    """
     query = select(Product).where(Product.is_active)
 
-    if store_id:
-        query = query.where(Product.store_id == store_id)
-    if category_id:
-        query = query.where(Product.category_id == category_id)
-    if min_price is not None:
-        query = query.where(Product.price >= min_price)
-    if max_price is not None:
-        query = query.where(Product.price <= max_price)
-    if search:
-        search_term = f"%{search.lower()}%"
+    if filters.store_id:
+        query = query.where(Product.store_id == filters.store_id)
+    if filters.category_id:
+        query = query.where(Product.category_id == filters.category_id)
+    if filters.min_price is not None:
+        query = query.where(Product.price >= filters.min_price)
+    if filters.max_price is not None:
+        query = query.where(Product.price <= filters.max_price)
+    if filters.search:
+        search_term = f"%{filters.search.lower()}%"
         query = query.where(
             or_(Product.name.ilike(search_term), Product.description.ilike(search_term))
         )
 
-    results = await session.execute(query.offset(skip).limit(limit))
-    return results.scalars().all()
+    results = await session.execute(query.offset(filters.skip).limit(filters.limit))
+    products = results.scalars().all()
+
+    response = []
+    for product in products:
+        vendor_user = (
+            product.store.vendor.user
+            if product.store and product.store.vendor
+            else None
+        )
+        host_info = VendorInfo(
+            id=product.store.vendor.id
+            if product.store and product.store.vendor
+            else None,
+            username=vendor_user.username if vendor_user else "anonymous",
+            profile_pic=vendor_user.profile_pic
+            if vendor_user
+            else "assets/images/faces/user1.jfif",
+            verification="verified"
+            if product.store and product.store.is_verified
+            else "null",
+            address=product.store.store_name if product.store else "N/A",
+        )
+
+        product_images = (
+            [img.image_url for img in product.images] if product.images else []
+        )
+
+        response.append(
+            ProductDisplay(
+                id=product.id,
+                title=product.name,
+                price=product.price,
+                discount_price=product.discount_price,
+                stock=product.stock,
+                unit_type="Item",
+                description=product.description,
+                category_id=product.category_id,
+                host_id=product.store.vendor.id
+                if product.store and product.store.vendor
+                else None,
+                images=product_images,
+                host=host_info,
+                created_at=product.created_at,
+                updated_at=product.updated_at,
+            )
+        )
+    return response
 
 
 # ----------------------
 # Public: Get single product
 # ----------------------
-@router.get("/{product_id}", response_model=ProductRead)
+@router.get("/{product_id}", response_model=ProductDisplay)
 async def get_product(
     product_id: int,
     session: AsyncSession = Depends(get_session),
@@ -80,13 +124,47 @@ async def get_product(
     product = await session.get(Product, product_id)
     if not product or not product.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+
+    vendor_user = (
+        product.store.vendor.user if product.store and product.store.vendor else None
+    )
+    host_info = VendorInfo(
+        id=product.store.vendor.id if product.store and product.store.vendor else None,
+        username=vendor_user.username if vendor_user else "anonymous",
+        profile_pic=vendor_user.profile_pic
+        if vendor_user
+        else "assets/images/faces/user1.jfif",
+        verification="verified"
+        if product.store and product.store.is_verified
+        else "null",
+        address=product.store.store_name if product.store else "N/A",
+    )
+
+    product_images = [img.image_url for img in product.images] if product.images else []
+
+    return ProductDisplay(
+        id=product.id,
+        title=product.name,
+        price=product.price,
+        discount_price=product.discount_price,
+        stock=product.stock,
+        unit_type="Item",
+        description=product.description,
+        category_id=product.category_id,
+        host_id=product.store.vendor.id
+        if product.store and product.store.vendor
+        else None,
+        images=product_images,
+        host=host_info,
+        created_at=product.created_at,
+        updated_at=product.updated_at,
+    )
 
 
 # ----------------------
-# Authenticated: Create product
+# Authenticated: Create product (with images & display-ready response)
 # ----------------------
-@router.post("/", response_model=ProductRead)
+@router.post("/", response_model=ProductDisplay)
 async def create_product(
     product: ProductCreate,
     session: AsyncSession = Depends(get_session),
@@ -114,11 +192,66 @@ async def create_product(
                 detail=f"Category with id {product.category_id} not found",
             )
 
+    # Create Product
     db_product = Product.model_validate(product)
     session.add(db_product)
     await session.commit()
     await session.refresh(db_product)
-    return db_product
+
+    # Handle images (if none, add default placeholder)
+    if not db_product.images:
+        default_img = ProductImage(
+            product_id=db_product.id,
+            image_url="assets/images/products/iphone0.jfif",
+            is_main=True,
+        )
+        session.add(default_img)
+        await session.commit()
+        await session.refresh(default_img)
+
+    # Prepare display response for frontend
+    vendor_user = (
+        db_product.store.vendor.user
+        if db_product.store and db_product.store.vendor
+        else None
+    )
+    host_info = VendorInfo(
+        id=db_product.store.vendor.id
+        if db_product.store and db_product.store.vendor
+        else None,
+        username=vendor_user.username if vendor_user else "anonymous",
+        profile_pic=vendor_user.profile_pic
+        if vendor_user
+        else "assets/images/faces/user1.jfif",
+        verification="verified"
+        if db_product.store and db_product.store.is_verified
+        else "null",
+        address=db_product.store.store_name if db_product.store else "N/A",
+    )
+
+    product_images = (
+        [img.image_url for img in db_product.images] if db_product.images else []
+    )
+
+    response = ProductDisplay(
+        id=db_product.id,
+        title=db_product.name,
+        price=db_product.price,
+        discount_price=db_product.discount_price,
+        stock=db_product.stock,
+        unit_type="Item",
+        description=db_product.description,
+        category_id=db_product.category_id,
+        host_id=db_product.store.vendor.id
+        if db_product.store and db_product.store.vendor
+        else None,
+        images=product_images,
+        host=host_info,
+        created_at=db_product.created_at,
+        updated_at=db_product.updated_at,
+    )
+
+    return response
 
 
 # ----------------------

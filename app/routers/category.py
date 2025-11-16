@@ -26,13 +26,13 @@ async def get_current_admin_user(
 async def create_category(
     category: CategoryCreate, session: AsyncSession = Depends(get_session)
 ):
-    if category.parent_id:
-        parent_category = await session.get(Category, category.parent_id)
-        if not parent_category:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Parent category with id {category.parent_id} not found",
-            )
+    # if category.parent_id:
+    #     # parent_category = await session.get(Category, category.parent_id)  # noqa: F841
+    #     # if not parent_category:
+    #     #     raise HTTPException(
+    #     #         status_code=400,
+    #     #         detail=f"Parent category with id {category.parent_id} not found",
+    #     #     )
     db_category = Category.model_validate(category)
     session.add(db_category)
     await session.commit()
