@@ -4,11 +4,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.db.init_db import init_db
-from app.routers import auth, vendor, store, product, review, product_image, category
+from app.routers import (
+    auth,
+    vendor,
+    store,
+    product,
+    review,
+    product_image,
+    category,
+    user,
+)
 
 
 origins = [
-    "https://settlement-companies-attitudes-tablets.trycloudflare.com",
+    "https://boundary-san-selection-normal.trycloudflare.com",
 ]
 
 
@@ -44,6 +53,7 @@ app.include_router(product.router)
 app.include_router(review.router)
 app.include_router(product_image.router)
 app.include_router(category.router)
+app.include_router(user.router)
 
 
 @app.websocket("/online_status")
