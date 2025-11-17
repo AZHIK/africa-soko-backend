@@ -10,6 +10,7 @@ from app.core.security import get_password_hash, verify_password
 from app.core.jwt import create_access_token, create_refresh_token, decode_access_token
 from app.db.session import get_session
 from app.core.config import settings
+from app.schemas.auth_schema import RefreshTokenRequest, RefreshTokenResponse
 
 router = APIRouter(tags=["auth"])
 security_scheme = HTTPBearer()
@@ -204,3 +205,31 @@ async def get_current_user(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+
+@router.post("/refresh_token", response_model=RefreshTokenResponse)
+async def refresh_token(
+    request: RefreshTokenRequest, session: AsyncSession = Depends(get_session)
+):
+    try:
+        payload = decode_access_token(request.refresh_token)
+        user_id = int(payload.get("sub"))
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    db_user = result.scalars().first()
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+
+    new_access_token = create_access_token(
+        user_id=db_user.id, is_admin=db_user.is_admin
+    )
+    # Optionally issue a new refresh token
+    new_refresh_token = create_refresh_token(
+        user_id=db_user.id, is_admin=db_user.is_admin
+    )
+
+    return RefreshTokenResponse(
+        ___access_token=new_access_token, ___refresh_token=new_refresh_token
+    )

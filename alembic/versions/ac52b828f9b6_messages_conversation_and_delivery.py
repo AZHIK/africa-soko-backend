@@ -1,16 +1,16 @@
-"""relationships fix
+"""messages conversation and delivery
 
-Revision ID: 13b819759a0b
-Revises: 06d42fb946b3
-Create Date: 2025-11-11 14:20:29.568487
+Revision ID: ac52b828f9b6
+Revises: a2f92b28619f
+Create Date: 2025-11-17 12:14:30.319717
 
 """
 from typing import Sequence, Union
 
 
 # revision identifiers, used by Alembic.
-revision: str = "13b819759a0b"
-down_revision: Union[str, Sequence[str], None] = "06d42fb946b3"
+revision: str = "ac52b828f9b6"
+down_revision: Union[str, Sequence[str], None] = "a2f92b28619f"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

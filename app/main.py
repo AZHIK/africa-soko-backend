@@ -13,12 +13,15 @@ from app.routers import (
     product_image,
     category,
     user,
+    location,  # Added location router
+    uploads,
+    stories,
+    chats,
+    orders,
 )
 
 
-origins = [
-    "https://boundary-san-selection-normal.trycloudflare.com",
-]
+origins = ["https://repeated-coated-boolean-honest.trycloudflare.com", "197.186.8.40"]
 
 
 @asynccontextmanager
@@ -54,6 +57,11 @@ app.include_router(review.router)
 app.include_router(product_image.router)
 app.include_router(category.router)
 app.include_router(user.router)
+app.include_router(location.router, tags=["Locations"])
+app.include_router(uploads.router)
+app.include_router(stories.router)
+app.include_router(chats.router)
+app.include_router(orders.router)
 
 
 @app.websocket("/online_status")

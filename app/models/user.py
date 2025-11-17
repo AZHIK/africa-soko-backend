@@ -82,6 +82,8 @@ class Address(SQLModel, table=True):
     state: Optional[str] = None
     country: Optional[str] = None
     postal_code: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     is_default: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.now)
     user: Optional["User"] = Relationship()
