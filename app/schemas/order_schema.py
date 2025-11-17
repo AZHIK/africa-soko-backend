@@ -13,6 +13,7 @@ class OrderProduct(BaseModel):
 class OrderHost(BaseModel):
     username: str
     profile_pic: str
+    verification: Optional[str] = None
 
 
 class Order(BaseModel):
@@ -24,14 +25,6 @@ class Order(BaseModel):
     products: List[OrderProduct]
 
 
-class GetOrdersRequest(BaseModel):
-    id: str
-
-
-class MarkOrderReadyRequest(BaseModel):
-    id: str
-
-
 class CheckoutItem(BaseModel):
     # Assuming cart item structure based on docs
     product_id: str
@@ -39,9 +32,8 @@ class CheckoutItem(BaseModel):
 
 
 class CheckoutDataRequest(BaseModel):
-    id: str
     data: List[CheckoutItem]
-    location_index: int
+    location_index: Optional[float] = None
 
 
 class CheckoutDataResponse(BaseModel):
@@ -50,10 +42,9 @@ class CheckoutDataResponse(BaseModel):
 
 
 class CheckoutConfirmRequest(BaseModel):
-    id: str
     data: List[CheckoutItem]
     phone: str
-    location_index: int
+    location_index: Optional[float] = None
 
 
 class CheckoutConfirmResponse(BaseModel):
@@ -63,11 +54,10 @@ class CheckoutConfirmResponse(BaseModel):
 
 
 class PlaceOrderRequest(BaseModel):
-    id: str
     order_ref: str
     token: str
     cart: List[CheckoutItem]
-    location_index: int
+    location_index: Optional[float] = None
 
 
 class StatusResponse(BaseModel):

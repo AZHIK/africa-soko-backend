@@ -18,6 +18,7 @@ from app.routers import (
     stories,
     chats,
     orders,
+    addresses,
 )
 
 
@@ -62,6 +63,7 @@ app.include_router(uploads.router)
 app.include_router(stories.router)
 app.include_router(chats.router)
 app.include_router(orders.router)
+app.include_router(addresses.router, prefix="/addresses", tags=["Addresses"])
 
 
 @app.websocket("/online_status")

@@ -2,12 +2,15 @@
 ├── alembic
 ├── alembic.ini
 ├── app
+├── assets
+├── directory_structure.txt
 ├── docker-compose.yml
 ├── mypy.ini
 ├── README.md
 ├── requirements-dev.txt
 ├── requirements.txt
 ├── scripts
+├── sokoni_uploads
 └── tests
 
 ./alembic
@@ -17,12 +20,10 @@
 └── versions
 
 ./alembic/versions
-├── 66ab7ea9acae_add_business_logic_models.py
-├── 88b86fc55d81_fix_order_payment_relationship.py
-└── fe2aa5c230b3_initial_tables.py
+├── a2f92b28619f_initial_migration.py
+└── ac52b828f9b6_messages_conversation_and_delivery.py
 
 ./app
-├── api
 ├── core
 ├── db
 ├── __init__.py
@@ -34,17 +35,6 @@
 ├── services
 ├── tasks
 └── utils
-
-./app/api
-├── deps.py
-└── v1
-
-./app/api/v1
-├── auth.py
-├── orders.py
-├── products.py
-├── router.py
-└── users.py
 
 ./app/core
 ├── config.py
@@ -64,23 +54,42 @@
 ├── order.py
 ├── payment.py
 ├── product.py
+├── story.py
 ├── user.py
 ├── vendor.py
 └── wishlist_and_cart.py
 
 ./app/routers
 ├── auth.py
-└── product.py
+├── category.py
+├── chats.py
+├── location.py
+├── orders.py
+├── product_image.py
+├── product.py
+├── review.py
+├── store.py
+├── stories.py
+├── uploads.py
+├── user.py
+└── vendor.py
 
 ./app/schemas
 ├── auth_schema.py
+├── category_schema.py
+├── chat_schema.py
+├── location.py
+├── order_schema.py
 ├── product_shema.py
-└── user_schema.py
+├── story_schema.py
+├── user_schema.py
+└── vendor_schema.py
 
 ./app/seeders
 └── rbac_seeders.py
 
 ./app/services
+├── location_service.py
 ├── orders_service.py
 └── users_service.py
 
@@ -90,10 +99,51 @@
 ./app/utils
 └── email.py
 
+./assets
+├── images
+└── logos
+
+./assets/images
+├── faces
+└── products
+
+./assets/images/faces
+├── user0.jfif
+├── user10.jfif
+├── user1.jfif
+├── user2.jfif
+├── user3.jfif
+├── user4.jfif
+├── user5.jfif
+├── user6.jfif
+├── user7.jfif
+├── user8.jfif
+├── user9.jfif
+└── user.png
+
+./assets/images/products
+├── audi0.jfif
+├── audi1.jfif
+├── audi2.jfif
+├── biryani0.jfif
+├── biryani1.jfif
+├── biryani2.jfif
+├── biryani3.jfif
+├── iphone0.jfif
+├── iphone1.jfif
+├── iphone2.jfif
+├── iphone3.jfif
+├── pods0.jfif
+├── pods1.jfif
+└── pods2.jfif
+
 ./scripts
+├── create_super_admin.py
 ├── create_tables.py
 ├── init_db.sh
 └── test_db_connection.py
+
+./sokoni_uploads
 
 ./tests
 ├── conftest.py

@@ -37,7 +37,7 @@ class Order(SQLModel, table=True):
     shipping_method: Optional[str] = Field(default="standard")
     tracking_number: Optional[str] = None
     estimated_delivery: Optional[datetime] = None
-    shipping_address_id: int = Field(foreign_key="address.id")
+    shipping_address_id: Optional[int] = Field(default=None, foreign_key="address.id")
 
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)

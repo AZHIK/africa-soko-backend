@@ -40,3 +40,10 @@ class LocationWrapper(BaseModel):
 class MessageResponse(BaseModel):
     status: str
     message: Optional[str] = None
+
+
+# New schema for capturing location coordinates with an optional dummy full_name
+class LocationCaptureRequest(BaseModel):
+    latitude: float
+    longitude: float
+    full_name: Optional[str] = "Captured Location"  # Default dummy value
