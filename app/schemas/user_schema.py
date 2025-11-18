@@ -90,12 +90,14 @@ class UsernamesUser(BaseModel):
     full_name: str
     username: str
     profile_pic: str
+    bio: Optional[str] = None
 
 
 class GetUsernamesResponse(BaseModel):
     status: str
     user: UsernamesUser
     usernames: List[str]
+    user_id: str
 
 
 class GetUsernamesRequest(BaseModel):

@@ -63,11 +63,14 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_admin: bool = Field(default=False)
     is_vendor: bool = Field(default=False)
+    first_name: Optional[str] = Field(default=None, index=True)
+    last_name: Optional[str] = Field(default=None, index=True)
+    biography: Optional[str] = Field(default=None, index=True)
+    gender: Optional[str] = Field(default=None, index=True)
     profile_pic: Optional[str] = Field(default="assets/images/faces/user.png")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
-
-    # relationships
+    date_of_birth: Optional[datetime] = Field()
     roles: List[Role] = Relationship(back_populates="users", link_model=UserRoleLink)
     permission_overrides: List[UserPermissionOverride] = Relationship()
 

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DEBUG: bool = True
     APP_PORT: int = 8000
+    BASE_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
     # JWT settings
     SECRET_KEY: str = Field(..., env="SECRET_KEY")
