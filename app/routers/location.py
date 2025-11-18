@@ -11,23 +11,24 @@ from app.schemas.location import (
 from app.services import location_service
 from app.models.user import User
 from app.routers.auth import get_current_user
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 router = APIRouter()
 
 
 @router.post("/get_user_locations", response_model=List[LocationRead])
-def get_user_locations_endpoint(
-    session: Session = Depends(get_session),
+async def get_user_locations_endpoint(
+    session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve all locations for the authenticated user.
     """
-    return location_service.get_user_locations(current_user.id, session)
+    return await location_service.get_user_locations(current_user.id, session)
 
 
 @router.post("/add_user_location", response_model=MessageResponse)
-def add_user_location_endpoint(
+async def add_user_location_endpoint(
     req: LocationWrapper,
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
@@ -36,7 +37,7 @@ def add_user_location_endpoint(
     Add a new location for the authenticated user.
     """
     try:
-        location_service.add_user_location(current_user.id, req.location, session)
+        await location_service.add_user_location(current_user.id, req.location, session)
         return MessageResponse(status="success", message="Location added successfully.")
     except Exception as e:
         raise HTTPException(

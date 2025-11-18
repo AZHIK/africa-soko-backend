@@ -78,7 +78,7 @@ async def get_orders(
                             or (
                                 item.product.images[0].image_url
                                 if item.product.images
-                                else None
+                                else ""
                             )
                         ),
                         amount=item.quantity,
@@ -138,10 +138,8 @@ async def checkout_confirm(
     db: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    # This endpoint is called to get a temporary reference for payment.
-    # No order is created here. The actual order is created in `place_order`.
     order_ref = str(uuid.uuid4())
-    token = str(uuid.uuid4())  # This could be a short-lived payment token
+    token = str(uuid.uuid4())
 
     return CheckoutConfirmResponse(status="success", order=order_ref, token=token)
 
@@ -197,10 +195,10 @@ async def place_order(
         order = Order(
             user_id=user.id,
             store_id=store_id,
-            status="paid",  # Assume payment is verified by the frontend flow
+            status="paid",
             total_amount=total_amount,
-            grand_total=total_amount,  # Simplified, can add shipping/taxes later
-            shipping_address_id=shipping_address_id,  # Use the fetched default address ID
+            grand_total=total_amount,
+            shipping_address_id=shipping_address_id,
         )
         db.add(order)
         await db.commit()

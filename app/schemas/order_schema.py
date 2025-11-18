@@ -5,14 +5,14 @@ from datetime import datetime
 
 class OrderProduct(BaseModel):
     title: str
-    thumbnail: str
+    thumbnail: Optional[str] = None
     amount: float
     attributes: Dict[str, Any]
 
 
 class OrderHost(BaseModel):
     username: str
-    profile_pic: str
+    profile_pic: Optional[str] = None
     verification: Optional[str] = None
 
 

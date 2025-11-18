@@ -22,7 +22,7 @@ from app.routers import (
 )
 
 
-origins = ["https://repeated-coated-boolean-honest.trycloudflare.com", "197.186.8.40"]
+origins = ["https://twenty-sam-undertake-accessed.trycloudflare.com", "197.186.8.40"]
 
 
 @asynccontextmanager

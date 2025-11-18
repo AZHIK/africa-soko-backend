@@ -3,9 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-# Base model for user locations (shipping addresses)
 class LocationBase(BaseModel):
-    full_name: str
+    full_name: Optional[str] = None
     phone_number: Optional[str] = None
     street: Optional[str] = None
     city: Optional[str] = None
@@ -15,6 +14,11 @@ class LocationBase(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     is_default: bool = False
+
+    # Frontend fields
+    title: Optional[str] = None
+    address: Optional[str] = None
+    coordinates: Optional[list[float]] = None
 
 
 # For creating a new location

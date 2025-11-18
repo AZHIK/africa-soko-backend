@@ -29,9 +29,9 @@ class VendorRead(VendorBase):
 class VendorInfo(BaseModel):
     id: Optional[int]
     username: str
-    profile_pic: str
-    verification: str
-    address: str
+    profile_pic: Optional[str] = None
+    verification: Optional[str] = None
+    address: Optional[str] = None
 
 
 # Store Schemas
