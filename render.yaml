@@ -12,6 +12,30 @@ services:
         fromDatabase:
           name: africa-soko-db
           property: connectionString
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: africa-soko-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: africa-soko-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: africa-soko-db
+          property: database
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: africa-soko-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: africa-soko-db
+          property: port
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GOOGLE_USER_DEFAULT_PASSWORD
+        generateValue: true
 
 databases:
   - name: africa-soko-db
