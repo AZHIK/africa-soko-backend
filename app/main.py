@@ -22,7 +22,7 @@ from app.routers import (
 )
 
 
-origins = ["https://twenty-sam-undertake-accessed.trycloudflare.com", "197.186.8.40"]
+origins = ["https://variations-icons-alloy-nasa.trycloudflare.com", "197.186.8.40"]
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app = FastAPI(
 )
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
+app.mount("/uploads", StaticFiles(directory="sokoni_uploads"), name="uploads")
 
 # Adding CORS middleware
 app.add_middleware(
@@ -75,15 +76,12 @@ async def websocket_endpoint(websocket: WebSocket):
     origin = websocket.headers.get("origin")
 
     if origin not in origins:
-        await websocket.close(code=1008)  # Policy Violation
+        await websocket.close(code=1008)
         return
 
     await websocket.accept()
     try:
         while True:
-            # This endpoint will keep the connection alive.
-            # You can add logic here to receive messages or broadcast status updates.
-            # For now, it waits for a message before closing.
             await websocket.receive_text()
     except WebSocketDisconnect:
         print(f"Client {websocket.client.host} disconnected.")

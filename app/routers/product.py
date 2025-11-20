@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.db.session import get_session
-from app.models.product import Product, Category, ProductImage
+from app.models.product import Product, Category
+from app.models.product import Review
 from app.models.user import User
 from app.models.vendor import Vendor, Store
 from app.schemas.product_shema import (
@@ -16,7 +17,7 @@ from app.schemas.product_shema import (
 )
 from app.routers.auth import get_current_user
 from pydantic import BaseModel
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 from app.schemas.vendor_schema import VendorInfo
 
@@ -47,7 +48,20 @@ async def get_products(
     filters: ProductFilter,
     session: AsyncSession = Depends(get_session),
 ):
-    query = select(Product).where(Product.is_active)
+    avg_rating_subquery = (
+        select(
+            Review.product_id,
+            func.avg(Review.rating).label("average_rating"),
+        )
+        .group_by(Review.product_id)
+        .subquery()
+    )
+
+    query = (
+        select(Product, avg_rating_subquery.c.average_rating)
+        .outerjoin(avg_rating_subquery, Product.id == avg_rating_subquery.c.product_id)
+        .where(Product.is_active)
+    )
 
     if filters.store_id:
         query = query.where(Product.store_id == filters.store_id)
@@ -64,10 +78,10 @@ async def get_products(
         )
 
     results = await session.execute(query.offset(filters.skip).limit(filters.limit))
-    products = results.scalars().all()
+    products_with_ratings = results.all()
 
     response = []
-    for product in products:
+    for product, average_rating in products_with_ratings:
         vendor_user = (
             product.store.vendor.user
             if product.store and product.store.vendor
@@ -108,6 +122,9 @@ async def get_products(
                 host=host_info,
                 created_at=product.created_at,
                 updated_at=product.updated_at,
+                average_rating=float(average_rating)
+                if average_rating is not None
+                else 0.0,
             )
         )
     return response
@@ -124,6 +141,14 @@ async def get_product(
     product = await session.get(Product, product_id)
     if not product or not product.is_active:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    reviews_result = await session.execute(
+        select(Review).where(Review.product_id == product_id)
+    )
+    reviews = reviews_result.scalars().all()
+    average_rating = 0.0
+    if reviews:
+        average_rating = sum(r.rating for r in reviews) / len(reviews)
 
     vendor_user = (
         product.store.vendor.user if product.store and product.store.vendor else None
@@ -158,6 +183,7 @@ async def get_product(
         host=host_info,
         created_at=product.created_at,
         updated_at=product.updated_at,
+        average_rating=average_rating,
     )
 
 
@@ -197,17 +223,6 @@ async def create_product(
     session.add(db_product)
     await session.commit()
     await session.refresh(db_product)
-
-    # Handle images (if none, add default placeholder)
-    if not db_product.images:
-        default_img = ProductImage(
-            product_id=db_product.id,
-            image_url="assets/images/products/iphone0.jfif",
-            is_main=True,
-        )
-        session.add(default_img)
-        await session.commit()
-        await session.refresh(default_img)
 
     # Prepare display response for frontend
     vendor_user = (
@@ -249,6 +264,7 @@ async def create_product(
         host=host_info,
         created_at=db_product.created_at,
         updated_at=db_product.updated_at,
+        average_rating=0.0,
     )
 
     return response

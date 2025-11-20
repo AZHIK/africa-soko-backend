@@ -10,7 +10,14 @@ from app.core.security import get_password_hash, verify_password
 from app.core.jwt import create_access_token, create_refresh_token, decode_access_token
 from app.db.session import get_session
 from app.core.config import settings
-from app.schemas.auth_schema import RefreshTokenRequest, RefreshTokenResponse
+from app.schemas.auth_schema import (
+    LoginResponse,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
+    EmailLoginRequest,
+    UserCreate,
+    UserRead,
+)
 
 router = APIRouter(tags=["auth"])
 security_scheme = HTTPBearer()
@@ -193,6 +200,38 @@ async def authenticate(
     return {"status": "failed", "detail": "Unsupported auth_type"}
 
 
+@router.post("/login-email", response_model=LoginResponse)
+async def login_with_email(
+    data: EmailLoginRequest,
+    session: AsyncSession = Depends(get_session),
+):
+    # Get user by email
+    result = await session.execute(select(User).where(User.email == data.email))
+    db_user = result.scalars().first()
+
+    if not db_user or not verify_password(data.password, db_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    # Load user role
+    r_q = await session.execute(
+        select(Role)
+        .join(UserRoleLink, Role.id == UserRoleLink.role_id)
+        .where(UserRoleLink.user_id == db_user.id)
+    )
+    role = r_q.scalars().first()
+
+    # Create tokens
+    access_token = create_access_token(user_id=db_user.id, is_admin=db_user.is_admin)
+    refresh_token = create_refresh_token(user_id=db_user.id, is_admin=db_user.is_admin)
+
+    return {
+        "___access_token": access_token,
+        "___refresh_token": refresh_token,
+        "role": role.name if role else None,
+        "is_new": False,
+    }
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
     session: AsyncSession = Depends(get_session),
@@ -233,3 +272,26 @@ async def refresh_token(
     return RefreshTokenResponse(
         ___access_token=new_access_token, ___refresh_token=new_refresh_token
     )
+
+
+# Signup endpoint
+@router.post("/signup", response_model=UserRead)
+async def signup(user: UserCreate, session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(User).where(User.email == user.email))
+    existing_user = result.scalars().first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    if user.is_admin:
+        raise HTTPException(status_code=403, detail="Cannot create admin user")
+
+    db_user = User(
+        email=user.email,
+        username=user.username,
+        hashed_password=get_password_hash(user.password),
+        is_admin=user.is_admin,
+    )
+    session.add(db_user)
+    await session.commit()
+    await session.refresh(db_user)
+    return db_user

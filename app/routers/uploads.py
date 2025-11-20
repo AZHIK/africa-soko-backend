@@ -18,8 +18,9 @@ async def upload_file(file: UploadFile = File(...)):
     A general-purpose endpoint for uploading files (profile pictures, story media, etc.).
     """
     try:
-        # Generate a unique filename
-        filename = f"{uuid4()}_{file.filename}"
+        # Sanitize and generate a unique filename
+        sanitized_filename = file.filename.replace(" ", "_")
+        filename = f"{uuid4()}_{sanitized_filename}"
         file_path = os.path.join(UPLOAD_DIR, filename)
 
         # Save the file

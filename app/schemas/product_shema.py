@@ -51,6 +51,7 @@ class ProductDisplay(BaseModel):
     host: VendorInfo
     created_at: datetime
     updated_at: datetime
+    average_rating: float = 0.0
 
 
 class ProductFilter(BaseModel):
