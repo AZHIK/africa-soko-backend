@@ -1,6 +1,6 @@
 import os  # noqa: F401
 from dotenv import load_dotenv
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = Field(..., env="POSTGRES_PORT")
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
     GOOGLE_USER_DEFAULT_PASSWORD: str = Field(..., env="GOOGLE_USER_DEFAULT_PASSWORD")
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_connection(cls, v: str | None) -> str:
+        if v and v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v and v.startswith("postgresql://"):
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
 
     @property
     def SQLALCHEMY_DATABASE_URL(self) -> str:
