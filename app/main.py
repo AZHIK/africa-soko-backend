@@ -22,7 +22,7 @@ from app.routers import (
 )
 
 
-origins = ["https://variations-icons-alloy-nasa.trycloudflare.com", "197.186.8.40"]
+origins = ["https://africa-soko-frontend.onrender.com", "197.186.8.40"]
 
 
 @asynccontextmanager
