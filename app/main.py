@@ -24,7 +24,7 @@ from app.routers import (
 
 origins = [
     "https://africa-soko-frontend.onrender.com",
-    "https://imaging-matches-once-madonna.trycloudflare.com",
+    "https://plaza-leads-response-indicates.trycloudflare.com",
     "197.186.8.40",
 ]
 
