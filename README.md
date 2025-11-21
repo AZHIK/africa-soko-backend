@@ -93,11 +93,54 @@ After migrations, seed the initial roles and permissions, and create a super adm
     ```
     This script will create default roles (admin, vendor, customer) and permissions, and link them. It's designed to run only once.
 
-2.  **Create Super Administrator**:
     ```bash
     python -m scripts.create_super_admin
     ```
     Follow the prompts to create your initial super admin user. This user will have the 'admin' role.
+
+---
+
+## Running with Docker (Full Stack)
+
+To run the entire application (FastAPI backend + PostgreSQL database) using Docker Compose, simply run:
+
+```bash
+docker-compose up --build
+```
+
+This command will:
+1.  Build the backend image.
+2.  Start the PostgreSQL database container.
+3.  Start the FastAPI backend container.
+
+The API will be available at `http://localhost:8000` (or `http://127.0.0.1:8000`).
+The interactive API documentation will be at `http://localhost:8000/docs`.
+
+**Note:** The "Start the Database" section above is primarily for when you want to run the Python application locally (e.g., for debugging) but use a Dockerized database.
+
+---
+
+## Deployment
+
+This project is configured for deployment on [Render](https://render.com/). The infrastructure is defined in the `render.yaml` file.
+
+### Render Configuration
+
+The `render.yaml` file defines:
+-   **Web Service (`africa-soko-backend`):** The FastAPI application, built from the `Dockerfile`.
+-   **Database (`africa-soko-db`):** A managed PostgreSQL database.
+
+### Environment Variables on Render
+
+When deploying to Render, the following environment variables are automatically handled or need to be configured:
+
+-   `PORT`: Set to `8000`.
+-   `DATABASE_URL`: Automatically provided by Render when linking the web service to the database.
+-   `POSTGRES_...`: Database connection details are automatically injected from the linked database.
+-   `SECRET_KEY`: Should be generated and set in the Render dashboard or defined to be auto-generated in `render.yaml`.
+-   `GOOGLE_USER_DEFAULT_PASSWORD`: Should be generated/set for default passwords for Google OAuth users.
+
+To deploy, simply connect your GitHub repository to Render, and it should automatically detect the `render.yaml` file (Blueprint).
 
 ---
 
