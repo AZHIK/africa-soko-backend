@@ -22,7 +22,11 @@ from app.routers import (
 )
 
 
-origins = ["https://africa-soko-frontend.onrender.com", "197.186.8.40"]
+origins = [
+    "https://africa-soko-frontend.onrender.com",
+    "https://imaging-matches-once-madonna.trycloudflare.com",
+    "197.186.8.40",
+]
 
 
 @asynccontextmanager
@@ -44,7 +48,7 @@ app.mount("/uploads", StaticFiles(directory="sokoni_uploads"), name="uploads")
 # Adding CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
