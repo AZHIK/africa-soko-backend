@@ -24,6 +24,7 @@ from app.routers import (
 
 origins = [
     "https://africa-soko-frontend.vercel.app",
+    "https://africa-soko-frontend.onrender.com",
 ]
 
 
