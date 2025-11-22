@@ -166,404 +166,102 @@ Make sure your database is configured correctly for the test environment.
 
 ## API Endpoints
 
+### Addresses
+
+-   `POST /addresses/`: Create a new address for the current user.
+-   `GET /addresses/`: Get all addresses for the current user.
+-   `GET /addresses/{address_id}`: Get a specific address by ID.
+-   `PUT /addresses/{address_id}`: Update an address.
+-   `DELETE /addresses/{address_id}`: Delete an address.
+-   `POST /addresses/{address_id}/set_default`: Set an address as the default.
+
 ### Authentication
 
-#### `POST /auth/signup`
-
-*   **Description:** Registers a new user.
-*   **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "username": "newuser",
-        "password": "securepassword",
-        "is_admin": false
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: User successfully registered. Returns `UserRead` object.
-    *   `400 Bad Request`: Email already registered.
-    *   `403 Forbidden`: Cannot create an admin user directly via this endpoint.
-
-#### `POST /auth/login`
-
-*   **Description:** Authenticates a user and returns an access token.
-*   **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "password": "securepassword"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Authentication successful. Returns `Token` object.
-    *   `400 Bad Request`: Invalid credentials.
-
-#### `POST /auth/login/google`
-
-*   **Description:** Authenticates a user using Google OAuth token. If the user does not exist, a new user account is created.
-*   **Request Body:**
-    ```json
-    {
-        "token": "google_id_token_string"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Authentication successful. Returns `Token` object.
-    *   `400 Bad Request`: Invalid Google token.
-
-#### `POST /auth/login`
-
-*   **Description:** Authenticates a user and returns an access token.
-*   **Request Body:**
-    ```json
-    {
-        "email": "user@example.com",
-        "password": "securepassword"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Authentication successful. Returns `Token` object.
-    *   `400 Bad Request`: Invalid credentials.
-
-#### `POST /auth/login/google`
-
-*   **Description:** Authenticates a user using Google OAuth token. If the user does not exist, a new user account is created.
-*   **Request Body:**
-    ```json
-    {
-        "token": "google_id_token_string"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Authentication successful. Returns `Token` object.
-    *   `400 Bad Request`: Invalid Google token.
-
-#### `POST /auth/login/google`
-
-*   **Description:** Authenticates a user using Google OAuth token. If the user does not exist, a new user account is created.
-*   **Request Body:**
-    ```json
-    {
-        "token": "google_id_token_string"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Authentication successful. Returns `Token` object.
-    *   `400 Bad Request`: Invalid Google token.
+-   `POST /auth`: Authenticate with Google, email/password, or refresh token.
+-   `POST /auth/login-email`: Login with email and password.
+-   `POST /auth/refresh_token`: Refresh an access token.
+-   `POST /auth/signup`: Register a new user.
 
 ### Categories
 
-#### `POST /categories/`
+-   `POST /categories/`: Create a new category (admin only).
+-   `GET /categories/`: List all categories.
+-   `GET /categories/{category_id}`: Get a specific category by ID.
+-   `PUT /categories/{category_id}`: Update a category (admin only).
+-   `DELETE /categories/{category_id}`: Delete a category (admin only).
 
-*   **Description:** Creates a new category. Requires admin authentication.
-*   **Request Body:**
-    ```json
-    {
-        "name": "Electronics",
-        "slug": "electronics",
-        "description": "Electronic gadgets and devices",
-        "parent_id": null
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Category successfully created. Returns `CategoryRead` object.
-    *   `400 Bad Request`: Parent category not found.
-    *   `403 Forbidden`: Not authorized.
+### Chats
 
-#### `GET /categories/`
+-   `POST /chats/last_conversation`: Get a summary of the last conversations.
+-   `POST /chats/get_conversation`: Get a specific conversation.
+-   `POST /chats/send_message`: Send a message in a conversation.
 
-*   **Description:** Lists all categories.
-*   **Responses:**
-    *   `200 OK`: Returns a list of `CategoryRead` objects.
+### Location
 
-#### `GET /categories/{category_id}`
+-   `POST /get_user_locations`: Get all locations for the current user.
+-   `POST /add_user_location`: Add a new location for the current user.
+-   `POST /delete_user_location`: Delete a user's location.
 
-*   **Description:** Retrieves a single category by ID.
-*   **Responses:**
-    *   `200 OK`: Returns a `CategoryRead` object.
-    *   `404 Not Found`: Category not found.
+### Orders
 
-#### `PUT /categories/{category_id}`
-
-*   **Description:** Updates an existing category. Requires admin authentication.
-*   **Request Body:**
-    ```json
-    {
-        "name": "Updated Electronics",
-        "description": "All kinds of updated electronic gadgets"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Category successfully updated. Returns `CategoryRead` object.
-    *   `400 Bad Request`: Parent category not found.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Category not found.
-
-#### `DELETE /categories/{category_id}`
-
-*   **Description:** Deletes a category. Requires admin authentication.
-*   **Responses:**
-    *   `204 No Content`: Category successfully deleted.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Category not found.
+-   `POST /get_orders`: Get all orders for the current user.
+-   `POST /checkout_data`: Get checkout data (total, distances).
+-   `POST /checkout_confirm`: Confirm a checkout and get an order reference.
+-   `POST /place_order`: Place an order.
 
 ### Products
 
-#### `GET /products/`
-
-*   **Description:** Lists active products with optional filters (store_id, category_id, min_price, max_price, search).
-*   **Query Parameters:** `store_id`, `category_id`, `min_price`, `max_price`, `search`, `skip`, `limit`
-*   **Responses:**
-    *   `200 OK`: Returns a list of `ProductRead` objects.
-
-#### `GET /products/{product_id}`
-
-*   **Description:** Retrieves a single product by ID.
-*   **Responses:**
-    *   `200 OK`: Returns a `ProductRead` object.
-    *   `404 Not Found`: Product not found.
-
-#### `POST /products/`
-
-*   **Description:** Creates a new product. Requires vendor authentication.
-*   **Request Body:**
-    ```json
-    {
-        "store_id": 1,
-        "category_id": 1,
-        "name": "Smartphone X",
-        "slug": "smartphone-x",
-        "description": "Latest model smartphone",
-        "price": 699.99,
-        "discount_price": 649.99,
-        "stock": 100,
-        "is_active": true
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Product successfully created. Returns `ProductRead` object.
-    *   `400 Bad Request`: Category not found.
-    *   `403 Forbidden`: Not authorized (user is not a vendor or cannot add to the specified store).
-
-#### `PUT /products/{product_id}`
-
-*   **Description:** Updates an existing product. Requires vendor authentication.
-*   **Request Body:**
-    ```json
-    {
-        "price": 679.99,
-        "stock": 90
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Product successfully updated. Returns `ProductRead` object.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Product not found.
-
-#### `DELETE /products/{product_id}`
-
-*   **Description:** Deactivates (soft deletes) a product. Requires vendor authentication.
-*   **Responses:**
-    *   `200 OK`: Product deactivated successfully.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Product not found.
+-   `POST /products/get_products`: Get a list of products with filters.
+-   `GET /products/{product_id}`: Get a single product by ID.
+-   `POST /products/`: Create a new product (vendor only).
+-   `PUT /products/{product_id}`: Update a product (vendor only).
+-   `DELETE /products/{product_id}`: Deactivate (soft delete) a product (vendor only).
 
 ### Product Images
 
-#### `POST /products/{product_id}/images`
-
-*   **Description:** Adds a new image to a product. Requires vendor authentication.
-*   **Request Body:**
-    ```json
-    {
-        "image_url": "http://example.com/image.jpg",
-        "is_main": false
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Image successfully added. Returns `ImageRead` object.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Product not found.
-
-#### `GET /products/{product_id}/images`
-
-*   **Description:** Retrieves all images for a specific product.
-*   **Responses:**
-    *   `200 OK`: Returns a list of `ImageRead` objects.
-
-#### `DELETE /images/{image_id}`
-
-*   **Description:** Deletes a product image. Requires vendor authentication.
-*   **Responses:**
-    *   `204 No Content`: Image successfully deleted.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Image or associated product not found.
-
-#### `POST /images/{image_id}/set-main`
-
-*   **Description:** Sets a product image as the main image. Requires vendor authentication.
-*   **Responses:**
-    *   `200 OK`: Image successfully set as main. Returns `ImageRead` object.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Image or associated product not found.
+-   `POST /products/{product_id}/images`: Add images to a product (vendor only).
+-   `GET /products/{product_id}/images`: Get all images for a product.
+-   `DELETE /images/{image_id}`: Delete a product image (vendor only).
+-   `POST /images/{image_id}/set-main`: Set a product image as the main image (vendor only).
 
 ### Reviews
 
-#### `POST /products/{product_id}/reviews`
-
-*   **Description:** Creates a new review for a product. Requires user authentication.
-*   **Request Body:**
-    ```json
-    {
-        "rating": 5,
-        "comment": "Great product, highly recommend!"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Review successfully created. Returns `ReviewRead` object.
-    *   `400 Bad Request`: User has already reviewed this product.
-    *   `404 Not Found`: Product not found.
-
-#### `GET /products/{product_id}/reviews`
-
-*   **Description:** Retrieves all reviews for a specific product.
-*   **Query Parameters:** `skip`, `limit`
-*   **Responses:**
-    *   `200 OK`: Returns a list of `ReviewRead` objects.
-
-#### `PUT /reviews/{review_id}`
-
-*   **Description:** Updates an existing review. Requires user authentication (only the review owner).
-*   **Request Body:**
-    ```json
-    {
-        "rating": 4,
-        "comment": "It's good, but could be better."
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Review successfully updated. Returns `ReviewRead` object.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Review not found.
-
-#### `DELETE /reviews/{review_id}`
-
-*   **Description:** Deletes a review. Requires user authentication (owner or vendor of the product).
-*   **Responses:**
-    *   `204 No Content`: Review successfully deleted.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Review not found.
+-   `POST /products/{product_id}/reviews`: Create a new review for a product.
+-   `GET /products/{product_id}/reviews`: Get all reviews for a product.
+-   `PUT /reviews/{review_id}`: Update a review.
+-   `DELETE /reviews/{review_id}`: Delete a review.
 
 ### Stores
 
-#### `POST /stores/`
+-   `POST /stores/`: Create a new store (vendor only).
+-   `GET /stores/`: List all stores.
+-   `GET /stores/me`: Get all stores for the current vendor.
+-   `GET /stores/{store_id}`: Get a specific store by ID.
+-   `PUT /stores/{store_id}`: Update a store (vendor only).
 
-*   **Description:** Creates a new store. Requires vendor authentication.
-*   **Request Body:**
-    ```json
-    {
-        "vendor_id": 1,
-        "store_name": "My Awesome Store",
-        "slug": "my-awesome-store",
-        "description": "A store selling awesome things",
-        "logo_url": "http://example.com/logo.png"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Store successfully created. Returns `StoreRead` object.
-    *   `403 Forbidden`: Not authorized (user is not a vendor or cannot create for another vendor).
+### Stories
 
-#### `GET /stores/`
+-   `POST /post_story`: Post a new story.
+-   `POST /get_story`: Get stories from followed users.
 
-*   **Description:** Lists all stores.
-*   **Query Parameters:** `skip`, `limit`
-*   **Responses:**
-    *   `200 OK`: Returns a list of `StoreRead` objects.
+### Uploads
 
-#### `GET /stores/me`
+-   `POST /upload`: Upload a file.
 
-*   **Description:** Retrieves stores owned by the current authenticated vendor.
-*   **Responses:**
-    *   `200 OK`: Returns a list of `StoreRead` objects.
-    *   `403 Forbidden`: User is not a vendor.
+### User
 
-#### `GET /stores/{store_id}`
-
-*   **Description:** Retrieves a single store by ID.
-*   **Responses:**
-    *   `200 OK`: Returns a `StoreRead` object.
-    *   `404 Not Found`: Store not found.
-
-#### `PUT /stores/{store_id}`
-
-*   **Description:** Updates an existing store. Requires vendor authentication (only the store owner).
-*   **Request Body:**
-    ```json
-    {
-        "description": "An updated description for my awesome store"
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Store successfully updated. Returns `StoreRead` object.
-    *   `403 Forbidden`: Not authorized.
-    *   `404 Not Found`: Store not found.
+-   `POST /update_user`: Update the current user's profile.
+-   `POST /upload`: Upload a file (duplicate of `/upload`).
+-   `POST /get_usernames`: Get a list of all usernames and the current user's profile.
 
 ### Vendors
 
-#### `POST /vendors/`
-
-*   **Description:** Creates a new vendor profile for the current authenticated user.
-*   **Request Body:**
-    ```json
-    {
-        "user_id": 1,
-        "business_name": "My Business Inc.",
-        "business_email": "business@example.com",
-        "phone_number": "+1234567890",
-        "bio": "We sell quality products."
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Vendor profile successfully created. Returns `VendorRead` object.
-    *   `400 Bad Request`: User is already a vendor.
-    *   `403 Forbidden`: Cannot create a vendor profile for another user.
-
-#### `GET /vendors/`
-
-*   **Description:** Lists all vendors.
-*   **Query Parameters:** `skip`, `limit`
-*   **Responses:**
-    *   `200 OK`: Returns a list of `VendorRead` objects.
-
-#### `GET /vendors/me`
-
-*   **Description:** Retrieves the vendor profile for the current authenticated user.
-*   **Responses:**
-    *   `200 OK`: Returns a `VendorRead` object.
-    *   `403 Forbidden`: User is not a vendor.
-    *   `404 Not Found`: Vendor profile not found.
-
-#### `GET /vendors/{vendor_id}`
-
-*   **Description:** Retrieves a single vendor by ID.
-*   **Responses:**
-    *   `200 OK`: Returns a `VendorRead` object.
-    *   `404 Not Found`: Vendor not found.
-
-#### `PUT /vendors/me`
-
-*   **Description:** Updates the vendor profile for the current authenticated user.
-*   **Request Body:**
-    ```json
-    {
-        "bio": "Updated bio for my business."
-    }
-    ```
-*   **Responses:**
-    *   `200 OK`: Vendor profile successfully updated. Returns `VendorRead` object.
-    *   `403 Forbidden`: User is not a vendor.
-    *   `404 Not Found`: Vendor profile not found.
+-   `POST /vendors/`: Create a new vendor profile.
+-   `GET /vendors/`: List all vendors.
+-   `GET /vendors/me`: Get the current user's vendor profile.
+-   `GET /vendors/{vendor_id}`: Get a specific vendor by ID.
+-   `PUT /vendors/me`: Update the current user's vendor profile.
+-   `DELETE /vendors/me`: Delete the current user's vendor profile.
 
 ## Environment Variables
 

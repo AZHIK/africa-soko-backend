@@ -44,12 +44,6 @@ def make_frontend_response(
 async def authenticate(
     request: Request, response: Response, session: AsyncSession = Depends(get_session)
 ):
-    """
-    Handles:
-      - Google login (ID token)
-      - Email/password login
-      - Refresh token exchange (if included)
-    """
     payload = await request.json()
     auth_type = (payload.get("auth_type") or "").lower()
     auth_by = payload.get("auth_by")

@@ -40,7 +40,7 @@ async def create_category(
     return db_category
 
 
-@router.get("/", response_model=List[CategoryRead])
+@router.get("/allcategories", response_model=List[CategoryRead])
 async def list_categories(
     skip: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)
 ):

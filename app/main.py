@@ -23,9 +23,7 @@ from app.routers import (
 
 
 origins = [
-    "https://africa-soko-frontend.onrender.com",
-    "https://plaza-leads-response-indicates.trycloudflare.com",
-    "197.186.8.40",
+    "https://africa-soko-frontend.vercel.app",
 ]
 
 
@@ -48,7 +46,7 @@ app.mount("/uploads", StaticFiles(directory="sokoni_uploads"), name="uploads")
 # Adding CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
