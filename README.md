@@ -164,23 +164,365 @@ pytest
 
 Make sure your database is configured correctly for the test environment.
 
-## API Endpoints
+## API Endpoints Documentation
 
 ### Addresses
 
--   `POST /addresses/`: Create a new address for the current user.
--   `GET /addresses/`: Get all addresses for the current user.
--   `GET /addresses/{address_id}`: Get a specific address by ID.
--   `PUT /addresses/{address_id}`: Update an address.
--   `DELETE /addresses/{address_id}`: Delete an address.
--   `POST /addresses/{address_id}/set_default`: Set an address as the default.
+All endpoints under this section require authentication.
+
+---
+
+### `POST /addresses/`
+
+Create a new address for the current user.
+
+**Request Body:**
+
+```json
+{
+  "full_name": "John Doe",
+  "phone_number": "+1234567890",
+  "street": "123 Main St",
+  "city": "Anytown",
+  "state": "CA",
+  "country": "USA",
+  "postal_code": "12345",
+  "latitude": 34.0522,
+  "longitude": -118.2437,
+  "is_default": true
+}
+```
+
+**Responses:**
+
+-   **201 Created:** Address created successfully.
+
+    ```json
+    {
+      "id": 1,
+      "user_id": 1,
+      "created_at": "2023-10-27T10:00:00Z",
+      "full_name": "John Doe",
+      "phone_number": "+1234567890",
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "country": "USA",
+      "postal_code": "12345",
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "is_default": true
+    }
+    ```
+
+---
+
+### `GET /addresses/`
+
+Get all addresses for the current user.
+
+**Response:**
+
+-   **200 OK:** A list of addresses.
+
+    ```json
+    [
+      {
+        "id": 1,
+        "user_id": 1,
+        "created_at": "2023-10-27T10:00:00Z",
+        "full_name": "John Doe",
+        "phone_number": "+1234567890",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "country": "USA",
+        "postal_code": "12345",
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "is_default": true
+      }
+    ]
+    ```
+
+---
+
+### `GET /addresses/{address_id}`
+
+Get a specific address by ID.
+
+**Response:**
+
+-   **200 OK:** The requested address.
+-   **404 Not Found:** If the address does not exist or does not belong to the user.
+
+---
+
+### `PUT /addresses/{address_id}`
+
+Update an address.
+
+**Request Body:**
+
+```json
+{
+  "full_name": "Jane Doe",
+  "is_default": false
+}
+```
+
+**Responses:**
+
+-   **200 OK:** The updated address.
+-   **404 Not Found:** If the address does not exist or does not belong to the user.
+
+---
+
+### `DELETE /addresses/{address_id}`
+
+Delete an address.
+
+**Responses:**
+
+-   **204 No Content:** The address was deleted successfully.
+-   **404 Not Found:** If the address does not exist or does not belong to the user.
+
+---
+
+### `POST /addresses/{address_id}/set_default`
+
+Set an address as the default.
+
+**Responses:**
+
+-   **200 OK:** The updated address, now set as default.
+-   **404 Not Found:** If the address does not exist or does not belong to the user.
 
 ### Authentication
 
--   `POST /auth`: Authenticate with Google, email/password, or refresh token.
--   `POST /auth/login-email`: Login with email and password.
--   `POST /auth/refresh_token`: Refresh an access token.
 -   `POST /auth/signup`: Register a new user.
+-   `POST /auth/login-email`: Login with email and password.
+-   `POST /auth`: Authenticate with Google, or refresh token.
+-   `POST /auth/refresh_token`: Refresh an access token.
+-   `POST /auth/forgot-password`: Send a password reset email.
+-   `POST /auth/reset-password`: Reset the user's password.
+
+---
+
+### `POST /auth/signup`
+
+Registers a new user in the system.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "a_strong_password",
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone_number": "+1234567890"
+}
+```
+
+**Responses:**
+
+-   **201 Created:** User created successfully.
+
+    ```json
+    {
+      "id": "user_id",
+      "email": "user@example.com",
+      "first_name": "John",
+      "last_name": "Doe",
+      "phone_number": "+1234567890",
+      "is_active": true,
+      "is_superuser": false,
+      "is_verified": false,
+      "created_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+-   **400 Bad Request:** If the email is already registered.
+
+    ```json
+    {
+      "detail": "Email already registered"
+    }
+    ```
+
+---
+
+### `POST /auth/login-email`
+
+Authenticates a user with their email and password.
+
+**Request Body:**
+
+```json
+{
+  "username": "user@example.com",
+  "password": "a_strong_password"
+}
+```
+
+**Responses:**
+
+-   **200 OK:** Authentication successful.
+
+    ```json
+    {
+      "access_token": "your_access_token",
+      "token_type": "bearer",
+      "refresh_token": "your_refresh_token",
+      "user": {
+        "id": "user_id",
+        "email": "user@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "phone_number": "+1234567890"
+      }
+    }
+    ```
+
+-   **401 Unauthorized:** If credentials are incorrect.
+
+    ```json
+    {
+      "detail": "Incorrect email or password"
+    }
+    ```
+
+---
+
+### `POST /auth`
+
+Handles different authentication grants: Google OAuth2 and refreshing tokens.
+
+#### 1. Google OAuth2
+
+**Request Body:**
+
+```json
+{
+  "grant_type": "google",
+  "token": "google_id_token"
+}
+```
+
+**Responses:**
+
+-   **200 OK:** Authentication successful. Returns the same response as email/password login.
+-   **400 Bad Request:** If the grant type is invalid or the token is missing.
+-   **401 Unauthorized:** If the Google token is invalid.
+
+#### 2. Refresh Token
+
+**Request Body:**
+
+```json
+{
+  "grant_type": "refresh_token",
+  "refresh_token": "your_existing_refresh_token"
+}
+```
+
+**Responses:**
+
+-   **200 OK:** Token refreshed successfully.
+
+    ```json
+    {
+      "access_token": "new_access_token",
+      "token_type": "bearer"
+    }
+    ```
+
+-   **401 Unauthorized:** If the refresh token is invalid or expired.
+
+---
+
+### `POST /auth/refresh_token`
+
+Refreshes an access token using a refresh token.
+
+**Request Body:**
+
+```json
+{
+  "refresh_token": "your_existing_refresh_token"
+}
+```
+
+**Responses:**
+
+-   **200 OK:** Token refreshed successfully.
+
+    ```json
+    {
+      "access_token": "new_access_token",
+      "token_type": "bearer"
+    }
+    ```
+
+-   **401 Unauthorized:** If the refresh token is invalid or expired.
+
+---
+
+### `POST /auth/forgot-password`
+
+Initiates the password reset process by sending an email with a reset token.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response:**
+
+-   **200 OK:** If a user with that email exists, an email will be sent.
+
+    ```json
+    {
+      "message": "Password reset email sent"
+    }
+    ```
+
+---
+
+### `POST /auth/reset-password`
+
+Resets the user's password using a valid reset token.
+
+**Request Body:**
+
+```json
+{
+  "token": "password_reset_token",
+  "new_password": "a_new_strong_password"
+}
+```
+
+**Response:**
+
+-   **200 OK:** Password reset was successful.
+
+    ```json
+    {
+      "message": "Password reset successful"
+    }
+    ```
+
+-   **400 Bad Request:** If the token is invalid or expired.
+
+    ```json
+    {
+      "detail": "Invalid or expired token"
+    }
+    ```
 
 ### Categories
 
