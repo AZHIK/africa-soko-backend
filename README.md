@@ -526,84 +526,1187 @@ Resets the user's password using a valid reset token.
 
 ### Categories
 
--   `POST /categories/`: Create a new category (admin only).
--   `GET /categories/`: List all categories.
--   `GET /categories/{category_id}`: Get a specific category by ID.
--   `PUT /categories/{category_id}`: Update a category (admin only).
--   `DELETE /categories/{category_id}`: Delete a category (admin only).
+All endpoints under this section require admin privileges, except for the `GET` endpoints.
+
+---
+
+### `POST /categories/`
+
+Create a new category. (Admin only)
+
+**Request Body:**
+
+```json
+{
+  "name": "Electronics",
+  "slug": "electronics",
+  "description": "All kinds of electronic gadgets.",
+  "parent_id": null
+}
+```
+
+**Responses:**
+
+-   **200 OK:** Category created successfully.
+
+    ```json
+    {
+      "name": "Electronics",
+      "slug": "electronics",
+      "description": "All kinds of electronic gadgets.",
+      "parent_id": null,
+      "id": 1,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+-   **403 Forbidden:** If the user is not an administrator.
+
+---
+
+### `GET /categories/allcategories`
+
+Get all categories.
+
+**Response:**
+
+-   **200 OK:** A list of categories.
+
+    ```json
+    [
+      {
+        "name": "Electronics",
+        "slug": "electronics",
+        "description": "All kinds of electronic gadgets.",
+        "parent_id": null,
+        "id": 1,
+        "created_at": "2023-10-27T10:00:00Z",
+        "updated_at": "2023-10-27T10:00:00Z"
+      }
+    ]
+    ```
+
+---
+
+### `GET /categories/{category_id}`
+
+Get a specific category by ID.
+
+**Response:**
+
+-   **200 OK:** The requested category.
+-   **404 Not Found:** If the category does not exist.
+
+    ```json
+    {
+      "name": "Electronics",
+      "slug": "electronics",
+      "description": "All kinds of electronic gadgets.",
+      "parent_id": null,
+      "id": 1,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+---
+
+### `PUT /categories/{category_id}`
+
+Update a category. (Admin only)
+
+**Request Body:**
+
+```json
+{
+  "name": "Digital Electronics",
+  "description": "All kinds of digital electronic gadgets."
+}
+```
+
+**Responses:**
+
+-   **200 OK:** The updated category.
+-   **403 Forbidden:** If the user is not an administrator.
+-   **404 Not Found:** If the category does not exist.
+
+---
+
+### `DELETE /categories/{category_id}`
+
+Delete a category. (Admin only)
+
+**Responses:**
+
+-   **204 No Content:** The category was deleted successfully.
+-   **403 Forbidden:** If the user is not an administrator.
+-   **404 Not Found:** If the category does not exist.
 
 ### Chats
 
--   `POST /chats/last_conversation`: Get a summary of the last conversations.
--   `POST /chats/get_conversation`: Get a specific conversation.
--   `POST /chats/send_message`: Send a message in a conversation.
+Endpoints for handling real-time chat between users.
+
+---
+
+### `POST /chats/last_conversation`
+
+Get a summary of the last conversations for a user.
+
+**Request Body:**
+
+```json
+{
+  "id": "user_id"
+}
+```
+
+**Response:**
+
+-   **200 OK:** A list of conversation summaries.
+
+    ```json
+    [
+      {
+        "sender_id": "sender_user_id",
+        "name": "John Doe",
+        "img": "url_to_user_image.jpg",
+        "time": "10:30 AM",
+        "message": "Hello there!"
+      }
+    ]
+    ```
+
+---
+
+### `POST /chats/get_conversation`
+
+Get the message history for a specific conversation between two users.
+
+**Request Body:**
+
+```json
+{
+  "id": "current_user_id",
+  "target_id": "other_user_id"
+}
+```
+
+**Response:**
+
+-   **200 OK:** The conversation history.
+
+    ```json
+    {
+      "status": "success",
+      "messages": [
+        {
+          "sender": "other_user_id",
+          "msg_content": "Hi!",
+          "msg_type": "text",
+          "sent_at": "2023-10-27T10:00:00Z"
+        },
+        {
+          "sender": "current_user_id",
+          "msg_content": "Hello! How are you?",
+          "msg_type": "text",
+          "sent_at": "2023-10-27T10:01:00Z"
+        }
+      ]
+    }
+    ```
+
+---
+
+### `POST /chats/send_message`
+
+Send a message to another user.
+
+**Request Body:**
+
+```json
+{
+  "from": "sender_user_id",
+  "to": "receiver_user_id",
+  "type": "text",
+  "content": "This is a test message."
+}
+```
+
+**Response:**
+
+-   **200 OK:** Indicates the message was sent successfully.
+
+    ```json
+    {
+      "status": "success"
+    }
+    ```
 
 ### Location
 
--   `POST /get_user_locations`: Get all locations for the current user.
--   `POST /add_user_location`: Add a new location for the current user.
--   `POST /delete_user_location`: Delete a user's location.
+Endpoints for managing user locations. All endpoints require authentication.
+
+---
+
+### `POST /get_user_locations`
+
+Get all locations for the current user.
+
+**Response:**
+
+-   **200 OK:** A list of the user's locations.
+
+    ```json
+    [
+      {
+        "id": 1,
+        "user_id": 123,
+        "created_at": "2023-10-27T10:00:00Z",
+        "full_name": "John Doe",
+        "phone_number": "+1234567890",
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "country": "USA",
+        "postal_code": "12345",
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "is_default": true,
+        "title": "Home",
+        "address": "123 Main St, Anytown, CA 12345",
+        "coordinates": [34.0522, -118.2437]
+      }
+    ]
+    ```
+
+---
+
+### `POST /add_user_location`
+
+Add a new location for the current user.
+
+**Request Body:**
+
+```json
+{
+  "location": {
+    "full_name": "Work",
+    "phone_number": "+0987654321",
+    "street": "456 Business Ave",
+    "city": "Businesstown",
+    "state": "BS",
+    "country": "USA",
+    "postal_code": "54321",
+    "latitude": 34.0523,
+    "longitude": -118.2438,
+    "is_default": false,
+    "title": "Work Office",
+    "address": "456 Business Ave, Businesstown, BS 54321",
+    "coordinates": [34.0523, -118.2438]
+  }
+}
+```
+
+**Response:**
+
+-   **200 OK:** Indicates the location was added successfully.
+
+    ```json
+    {
+      "status": "success",
+      "message": "Location added successfully."
+    }
+    ```
+
+---
+
+### `POST /delete_user_location`
+
+Delete a user's location.
+
+**Request Body:**
+
+```json
+{
+  "location": {
+    "id": 1
+  }
+}
+```
+
+**Response:**
+
+-   **200 OK:** Indicates the location was deleted successfully.
+
+    ```json
+    {
+      "status": "success",
+      "message": "Location deleted successfully."
+    }
+    ```
+-   **404 Not Found:** If the location does not exist or does not belong to the user.
 
 ### Orders
 
--   `POST /get_orders`: Get all orders for the current user.
--   `POST /checkout_data`: Get checkout data (total, distances).
--   `POST /checkout_confirm`: Confirm a checkout and get an order reference.
--   `POST /place_order`: Place an order.
+Endpoints for managing orders. All endpoints require authentication.
+
+---
+
+### `POST /get_orders`
+
+Get all orders for the current user.
+
+**Response:**
+
+-   **200 OK:** A list of the user's orders.
+
+    ```json
+    [
+      {
+        "id": "order_uuid",
+        "created_at": "2023-10-27T10:00:00Z",
+        "delivered": false,
+        "ready": true,
+        "host": {
+          "username": "store_owner_username",
+          "profile_pic": "url_to_profile_pic.jpg",
+          "verification": "gold"
+        },
+        "products": [
+          {
+            "title": "Product Name",
+            "thumbnail": "url_to_product_thumbnail.jpg",
+            "amount": 1,
+            "attributes": {}
+          }
+        ]
+      }
+    ]
+    ```
+
+---
+
+### `POST /checkout_data`
+
+Get checkout data, including the total price and shipping distances.
+
+**Request Body:**
+
+```json
+{
+  "data": [
+    {
+      "product_id": "1",
+      "quantity": 2
+    }
+  ],
+  "location_index": 0
+}
+```
+
+**Response:**
+
+-   **200 OK:** Checkout data.
+
+    ```json
+    {
+      "total": 50.00,
+      "distances": [0.0, 1.0, 2.0]
+    }
+    ```
+
+---
+
+### `POST /checkout_confirm`
+
+Confirm a checkout and get an order reference and token.
+
+**Request Body:**
+
+```json
+{
+  "data": [
+    {
+      "product_id": "1",
+      "quantity": 2
+    }
+  ],
+  "phone": "+1234567890",
+  "location_index": 0
+}
+```
+
+**Response:**
+
+-   **200 OK:** Order reference and token.
+
+    ```json
+    {
+      "status": "success",
+      "order": "order_reference_uuid",
+      "token": "checkout_token_uuid"
+    }
+    ```
+
+---
+
+### `POST /place_order`
+
+Place an order using the reference and token from checkout confirmation.
+
+**Request Body:**
+
+```json
+{
+  "order_ref": "order_reference_uuid",
+  "token": "checkout_token_uuid",
+  "cart": [
+    {
+      "product_id": "1",
+      "quantity": 2
+    }
+  ],
+  "location_index": 0
+}
+```
+
+**Response:**
+
+-   **200 OK:** Indicates the order was placed successfully.
+
+    ```json
+    {
+      "status": "success",
+      "message": "Order(s) placed successfully"
+    }
+    ```
 
 ### Products
 
--   `POST /products/get_products`: Get a list of products with filters.
--   `GET /products/{product_id}`: Get a single product by ID.
--   `POST /products/`: Create a new product (vendor only).
--   `PUT /products/{product_id}`: Update a product (vendor only).
--   `DELETE /products/{product_id}`: Deactivate (soft delete) a product (vendor only).
+Endpoints for managing products.
+
+---
+
+### `POST /products/get_products`
+
+Get a list of products with optional filters.
+
+**Request Body:**
+
+```json
+{
+  "store_id": 1,
+  "category_id": 2,
+  "min_price": 10.00,
+  "max_price": 100.00,
+  "search": "laptop",
+  "skip": 0,
+  "limit": 20
+}
+```
+
+**Response:**
+
+-   **200 OK:** A list of products matching the filters.
+
+    ```json
+    [
+      {
+        "id": 1,
+        "title": "Laptop",
+        "price": 999.99,
+        "discount_price": 899.99,
+        "stock": 50,
+        "unit_type": "Item",
+        "description": "A powerful laptop.",
+        "category_id": 2,
+        "host_id": 1,
+        "images": ["url_to_image.jpg"],
+        "host": {
+          "id": 1,
+          "username": "vendor_username",
+          "profile_pic": "url_to_profile_pic.jpg",
+          "verification": "verified",
+          "address": "Store Name"
+        },
+        "created_at": "2023-10-27T10:00:00Z",
+        "updated_at": "2023-10-27T10:00:00Z",
+        "average_rating": 4.5
+      }
+    ]
+    ```
+
+---
+
+### `GET /products/{product_id}`
+
+Get a single product by ID.
+
+**Response:**
+
+-   **200 OK:** The requested product.
+-   **404 Not Found:** If the product does not exist.
+
+    ```json
+    {
+      "id": 1,
+      "title": "Laptop",
+      "price": 999.99,
+      "discount_price": 899.99,
+      "stock": 50,
+      "unit_type": "Item",
+      "description": "A powerful laptop.",
+      "category_id": 2,
+      "host_id": 1,
+      "images": ["url_to_image.jpg"],
+      "host": {
+        "id": 1,
+        "username": "vendor_username",
+        "profile_pic": "url_to_profile_pic.jpg",
+        "verification": "verified",
+        "address": "Store Name"
+      },
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z",
+      "average_rating": 4.5
+    }
+    ```
+
+---
+
+### `POST /products/`
+
+Create a new product. (Vendor only)
+
+**Request Body:**
+
+```json
+{
+  "store_id": 1,
+  "category_id": 2,
+  "name": "New Gadget",
+  "slug": "new-gadget",
+  "description": "The latest and greatest gadget.",
+  "price": 199.99,
+  "discount_price": 179.99,
+  "stock": 100,
+  "is_active": true
+}
+```
+
+**Response:**
+
+-   **200 OK:** The newly created product.
+-   **403 Forbidden:** If the user is not a vendor or does not own the store.
+
+---
+
+### `PUT /products/{product_id}`
+
+Update a product. (Vendor only)
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Gadget",
+  "price": 189.99
+}
+```
+
+**Response:**
+
+-   **200 OK:** The updated product.
+-   **403 Forbidden:** If the user is not a vendor or does not own the product's store.
+-   **404 Not Found:** If the product does not exist.
+
+---
+
+### `DELETE /products/{product_id}`
+
+Deactivate (soft delete) a product. (Vendor only)
+
+**Response:**
+
+-   **200 OK:** Confirmation message.
+-   **403 Forbidden:** If the user is not a vendor or does not own the product's store.
+-   **404 Not Found:** If the product does not exist.
+
+    ```json
+    {
+      "detail": "Product 1 deactivated successfully"
+    }
+    ```
 
 ### Product Images
 
--   `POST /products/{product_id}/images`: Add images to a product (vendor only).
--   `GET /products/{product_id}/images`: Get all images for a product.
--   `DELETE /images/{image_id}`: Delete a product image (vendor only).
--   `POST /images/{image_id}/set-main`: Set a product image as the main image (vendor only).
+Endpoints for managing product images.
+
+---
+
+### `POST /products/{product_id}/images`
+
+Add one or more images to a product. (Vendor only)
+
+**Request Body:**
+
+-   This endpoint accepts `multipart/form-data`.
+-   The `files` field should contain one or more image files.
+
+**Response:**
+
+-   **200 OK:** A list of the newly created product images.
+-   **403 Forbidden:** If the user is not a vendor or does not own the product's store.
+-   **404 Not Found:** If the product does not exist.
+
+    ```json
+    [
+      {
+        "image_url": "uuid_filename.jpg",
+        "is_main": false,
+        "id": 1,
+        "product_id": 1
+      }
+    ]
+    ```
+
+---
+
+### `GET /products/{product_id}/images`
+
+Get all images for a product.
+
+**Response:**
+
+-   **200 OK:** A list of images for the specified product.
+
+    ```json
+    [
+      {
+        "image_url": "uuid_filename.jpg",
+        "is_main": true,
+        "id": 1,
+        "product_id": 1
+      },
+      {
+        "image_url": "another_uuid_filename.jpg",
+        "is_main": false,
+        "id": 2,
+        "product_id": 1
+      }
+    ]
+    ```
+
+---
+
+### `DELETE /images/{image_id}`
+
+Delete a product image. (Vendor only)
+
+**Response:**
+
+-   **204 No Content:** The image was deleted successfully.
+-   **403 Forbidden:** If the user is not a vendor or does not own the product's store.
+-   **404 Not Found:** If the image does not exist.
+
+---
+
+### `POST /images/{image_id}/set-main`
+
+Set a product image as the main image. (Vendor only)
+
+**Response:**
+
+-   **200 OK:** The updated image information.
+-   **403 Forbidden:** If the user is not a vendor or does not own the product's store.
+-   **404 Not Found:** If the image does not exist.
+
+    ```json
+    {
+      "image_url": "uuid_filename.jpg",
+      "is_main": true,
+      "id": 1,
+      "product_id": 1
+    }
+    ```
 
 ### Reviews
 
--   `POST /products/{product_id}/reviews`: Create a new review for a product.
--   `GET /products/{product_id}/reviews`: Get all reviews for a product.
--   `PUT /reviews/{review_id}`: Update a review.
--   `DELETE /reviews/{review_id}`: Delete a review.
+Endpoints for managing product reviews.
+
+---
+
+### `POST /products/{product_id}/reviews`
+
+Create a new review for a product. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "rating": 5,
+  "comment": "This product is amazing!",
+  "product_id": 1
+}
+```
+
+**Response:**
+
+-   **200 OK:** The newly created review.
+-   **400 Bad Request:** If the user has already reviewed the product.
+-   **404 Not Found:** If the product does not exist.
+
+    ```json
+    {
+      "rating": 5,
+      "comment": "This product is amazing!",
+      "id": 1,
+      "user_id": 1,
+      "product_id": 1,
+      "created_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+---
+
+### `GET /products/{product_id}/reviews`
+
+Get all reviews for a product.
+
+**Response:**
+
+-   **200 OK:** A list of reviews for the specified product.
+
+    ```json
+    [
+      {
+        "rating": 5,
+        "comment": "This product is amazing!",
+        "id": 1,
+        "user_id": 1,
+        "product_id": 1,
+        "created_at": "2023-10-27T10:00:00Z"
+      }
+    ]
+    ```
+
+---
+
+### `PUT /reviews/{review_id}`
+
+Update a review. Requires authentication. Only the user who created the review can update it.
+
+**Request Body:**
+
+```json
+{
+  "rating": 4,
+  "comment": "This product is great, but not perfect."
+}
+```
+
+**Response:**
+
+-   **200 OK:** The updated review.
+-   **403 Forbidden:** If the user is not the owner of the review.
+-   **404 Not Found:** If the review does not exist.
+
+---
+
+### `DELETE /reviews/{review_id}`
+
+Delete a review. Requires authentication. Can be deleted by the user who created it or by the vendor who owns the product.
+
+**Response:**
+
+-   **204 No Content:** The review was deleted successfully.
+-   **403 Forbidden:** If the user is not authorized to delete the review.
+-   **404 Not Found:** If the review does not exist.
 
 ### Stores
 
--   `POST /stores/`: Create a new store (vendor only).
--   `GET /stores/`: List all stores.
--   `GET /stores/me`: Get all stores for the current vendor.
--   `GET /stores/{store_id}`: Get a specific store by ID.
--   `PUT /stores/{store_id}`: Update a store (vendor only).
+Endpoints for managing stores.
+
+---
+
+### `POST /stores/`
+
+Create a new store. (Vendor only)
+
+**Request Body:**
+
+```json
+{
+  "store_name": "My Awesome Store",
+  "slug": "my-awesome-store",
+  "description": "Selling all the awesome things.",
+  "logo_url": "url_to_logo.jpg",
+  "vendor_id": 1
+}
+```
+
+**Response:**
+
+-   **200 OK:** The newly created store.
+-   **403 Forbidden:** If the user is not a vendor or is trying to create a store for another vendor.
+
+    ```json
+    {
+      "store_name": "My Awesome Store",
+      "slug": "my-awesome-store",
+      "description": "Selling all the awesome things.",
+      "logo_url": "url_to_logo.jpg",
+      "id": 1,
+      "vendor_id": 1,
+      "is_verified": false,
+      "rating": null,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+---
+
+### `GET /stores/`
+
+List all stores.
+
+**Response:**
+
+-   **200 OK:** A list of all stores.
+
+    ```json
+    [
+      {
+        "store_name": "My Awesome Store",
+        "slug": "my-awesome-store",
+        "description": "Selling all the awesome things.",
+        "logo_url": "url_to_logo.jpg",
+        "id": 1,
+        "vendor_id": 1,
+        "is_verified": false,
+        "rating": null,
+        "created_at": "2023-10-27T10:00:00Z",
+        "updated_at": "2023-10-27T10:00:00Z"
+      }
+    ]
+    ```
+
+---
+
+### `GET /stores/me`
+
+Get all stores for the current vendor. (Vendor only)
+
+**Response:**
+
+-   **200 OK:** A list of stores owned by the current vendor.
+-   **403 Forbidden:** If the user is not a vendor.
+
+---
+
+### `GET /stores/{store_id}`
+
+Get a specific store by ID.
+
+**Response:**
+
+-   **200 OK:** The requested store.
+-   **404 Not Found:** If the store does not exist.
+
+---
+
+### `PUT /stores/{store_id}`
+
+Update a store. (Vendor only)
+
+**Request Body:**
+
+```json
+{
+  "store_name": "My Even More Awesome Store",
+  "description": "Now with more awesome!"
+}
+```
+
+**Response:**
+
+-   **200 OK:** The updated store.
+-   **403 Forbidden:** If the user is not the owner of the store.
+-   **404 Not Found:** If the store does not exist.
 
 ### Stories
 
--   `POST /post_story`: Post a new story.
--   `POST /get_story`: Get stories from followed users.
+Endpoints for managing stories.
+
+---
+
+### `POST /post_story`
+
+Post a new story. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "id": "user_id",
+  "data": {
+    "story_url": "url_to_story_media.jpg",
+    "post_date": "2023-10-27T10:00:00Z",
+    "caption": "Check out my new story!"
+  }
+}
+```
+
+**Response:**
+
+-   **200 OK:** Indicates the story was posted successfully.
+
+    ```json
+    {
+      "status": "success",
+      "message": "Story posted"
+    }
+    ```
+
+---
+
+### `POST /get_story`
+
+Get stories from followed users. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "id": "current_user_id"
+}
+```
+
+**Response:**
+
+-   **200 OK:** A list of stories from followed users.
+
+    ```json
+    [
+      {
+        "user_id": "followed_user_id",
+        "profile_pic": "url_to_profile_pic.jpg",
+        "story_list": [
+          {
+            "story_url": "url_to_story_media.jpg",
+            "post_date": "2023-10-27T10:00:00Z",
+            "caption": "A story from a followed user."
+          }
+        ]
+      }
+    ]
+    ```
 
 ### Uploads
 
--   `POST /upload`: Upload a file.
+Endpoint for file uploads.
+
+---
+
+### `POST /upload`
+
+Upload a file. This is a general-purpose endpoint for uploading files like profile pictures, story media, etc.
+
+**Request Body:**
+
+-   This endpoint accepts `multipart/form-data`.
+-   The `file` field should contain the file to upload.
+
+**Response:**
+
+-   **200 OK:** The filename of the uploaded file.
+
+    ```json
+    {
+      "filename": "uuid_sanitized_filename.jpg"
+    }
+    ```
+-   **500 Internal Server Error:** If there was an error saving the file.
 
 ### User
 
--   `POST /update_user`: Update the current user's profile.
--   `POST /upload`: Upload a file (duplicate of `/upload`).
--   `POST /get_usernames`: Get a list of all usernames and the current user's profile.
+Endpoints for managing user profiles.
+
+---
+
+### `POST /update_user`
+
+Update the current user's profile. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone_number": "+1234567890",
+  "profile_pic": "url_to_new_profile_pic.jpg"
+}
+```
+
+**Response:**
+
+-   **200 OK:** The updated user profile.
+
+    ```json
+    {
+      "id": "user_id",
+      "email": "user@example.com",
+      "first_name": "John",
+      "last_name": "Doe",
+      "phone_number": "+1234567890",
+      "profile_pic": "url_to_new_profile_pic.jpg",
+      "is_active": true,
+      "is_superuser": false,
+      "is_verified": false,
+      "created_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+---
+
+### `POST /get_usernames`
+
+Get a list of all usernames and the current user's profile. Requires authentication.
+
+**Response:**
+
+-   **200 OK:** A list of all usernames and the current user's profile.
+
+    ```json
+    {
+      "users": [
+        "user1",
+        "user2",
+        "user3"
+      ],
+      "current_user": {
+        "id": "user_id",
+        "email": "user@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "phone_number": "+1234567890",
+        "profile_pic": "url_to_profile_pic.jpg"
+      }
+    }
+    ```
 
 ### Vendors
 
--   `POST /vendors/`: Create a new vendor profile.
--   `GET /vendors/`: List all vendors.
--   `GET /vendors/me`: Get the current user's vendor profile.
--   `GET /vendors/{vendor_id}`: Get a specific vendor by ID.
--   `PUT /vendors/me`: Update the current user's vendor profile.
--   `DELETE /vendors/me`: Delete the current user's vendor profile.
+Endpoints for managing vendor profiles.
+
+---
+
+### `POST /vendors/`
+
+Create a new vendor profile. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "business_name": "My Business",
+  "business_email": "business@example.com",
+  "phone_number": "+1234567890",
+  "bio": "Selling the best products.",
+  "user_id": 1
+}
+```
+
+**Response:**
+
+-   **200 OK:** The newly created vendor profile.
+-   **400 Bad Request:** If the user is already a vendor.
+-   **403 Forbidden:** If trying to create a vendor profile for another user.
+
+    ```json
+    {
+      "business_name": "My Business",
+      "business_email": "business@example.com",
+      "phone_number": "+1234567890",
+      "bio": "Selling the best products.",
+      "id": 1,
+      "user_id": 1,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+
+---
+
+### `GET /vendors/`
+
+List all vendors.
+
+**Response:**
+
+-   **200 OK:** A list of all vendors.
+
+    ```json
+    [
+      {
+        "business_name": "My Business",
+        "business_email": "business@example.com",
+        "phone_number": "+1234567890",
+        "bio": "Selling the best products.",
+        "id": 1,
+        "user_id": 1,
+        "created_at": "2023-10-27T10:00:00Z",
+        "updated_at": "2023-10-27T10:00:00Z"
+      }
+    ]
+    ```
+
+---
+
+### `GET /vendors/me`
+
+Get the current user's vendor profile. Requires authentication.
+
+**Response:**
+
+-   **200 OK:** The current user's vendor profile.
+-   **403 Forbidden:** If the user is not a vendor.
+-   **404 Not Found:** If the vendor profile does not exist.
+
+---
+
+### `GET /vendors/{vendor_id}`
+
+Get a specific vendor by ID.
+
+**Response:**
+
+-   **200 OK:** The requested vendor profile.
+-   **404 Not Found:** If the vendor does not exist.
+
+---
+
+### `PUT /vendors/me`
+
+Update the current user's vendor profile. Requires authentication.
+
+**Request Body:**
+
+```json
+{
+  "business_name": "My Awesome Business",
+  "bio": "We sell the most awesome products."
+}
+```
+
+**Response:**
+
+-   **200 OK:** The updated vendor profile.
+-   **403 Forbidden:** If the user is not a vendor.
+-   **404 Not Found:** If the vendor profile does not exist.
 
 ## Environment Variables
 

@@ -41,8 +41,6 @@ async def get_vendor_stores(user_id: int, session: AsyncSession) -> List[int]:
 # ----------------------
 # Public: List Products
 # ----------------------
-
-
 @router.post("/get_products", response_model=List[ProductDisplay])
 async def get_products(
     filters: ProductFilter,
