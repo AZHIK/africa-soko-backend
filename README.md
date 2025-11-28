@@ -864,7 +864,7 @@ Get all orders for the current user.
     ```json
     [
       {
-        "id": "order_uuid",
+        "id": "order_id",
         "created_at": "2023-10-27T10:00:00Z",
         "delivered": false,
         "ready": true,
@@ -944,7 +944,7 @@ Confirm a checkout and get an order reference and token.
     ```json
     {
       "status": "success",
-      "order": "order_reference_uuid",
+      "order": "order_id",
       "token": "checkout_token_uuid"
     }
     ```
