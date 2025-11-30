@@ -13,3 +13,9 @@ venv/
 # Docker
 *.log
 *.pid
+
+# Vercel
+.vercel/
+
+
+api_docs.md
